@@ -146,3 +146,89 @@ export async function logoutAction() {
   return { redirectTo: "/login" };
 }
 
+/**
+ * Ubah nama lengkap pada profil user. Dipakai halaman "Pengaturan" semua role.
+ * Kolom full_name diizinkan diupdate sendiri via RLS `profiles_update_self`.
+ */
+export async function updateProfileAction(
+  _prev: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const fullName = String(formData.get("fullName") || "").replace(/\s+/g, " ").trim();
+  if (!fullName) return { error: "Nama lengkap wajib diisi." };
+  if (fullName.length > 80) return { error: "Nama lengkap maksimal 80 karakter." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Sesi berakhir. Silakan masuk kembali." };
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ full_name: fullName })
+    .eq("id", user.id);
+  if (error) {
+    console.error("updateProfileAction error:", error);
+    return { error: "Gagal menyimpan nama. Coba lagi." };
+  }
+
+  // Sinkronkan nama di user_metadata (dipakai Navbar & tampilan lain).
+  await supabase.auth.updateUser({ data: { full_name: fullName } }).catch(() => {});
+
+  revalidatePath("/", "layout");
+  // Revalidasi panel yang mengarah ke profil (path generik cukup).
+  revalidatePath("/profil");
+  revalidatePath("/masyarakat/profil");
+  revalidatePath("/petugas/profil");
+  revalidatePath("/pimpinan/profil");
+  revalidatePath("/admin/profil");
+  return { success: "Nama lengkap berhasil diperbarui." };
+}
+
+/**
+ * Ganti kata sandi sendiri: wajib isi sandi lama, lalu sandi baru + konfirmasi.
+ * Supabase memverifikasi sandi lama via `updateUser({ password })` setelah
+ * re-auth pakai sandi lama untuk menghindari perubahan oleh sesi curian.
+ */
+export async function changePasswordAction(
+  _prev: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const currentPassword = String(formData.get("currentPassword") || "");
+  const newPassword = String(formData.get("newPassword") || "");
+  const confirmPassword = String(formData.get("confirmPassword") || "");
+
+  if (!currentPassword) return { error: "Masukkan kata sandi saat ini." };
+  if (!newPassword) return { error: "Buat kata sandi baru." };
+  if (newPassword.length < 6) return { error: "Kata sandi baru minimal 6 karakter." };
+  if (newPassword !== confirmPassword) {
+    return { error: "Konfirmasi kata sandi baru tidak sama." };
+  }
+
+  const supabase = await createClient();
+
+  // Validasi sandi lama → token segar milik sesi ini, bukan sesi yang disuntik.
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user?.email) return { error: "Sesi berakhir. Silakan masuk kembali." };
+  const { error: signInErr } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (signInErr) return { error: "Kata sandi saat ini salah." };
+
+  const { error: updateErr } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+  if (updateErr) return { error: "Gagal mengubah kata sandi. Coba lagi." };
+
+  // Force ulang masuk setelah sandi diganti agar sesi tersinkron.
+  await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: newPassword,
+  }).catch(() => {});
+
+  revalidatePath("/", "layout");
+  return { success: "Kata sandi berhasil diganti." };
+}
+

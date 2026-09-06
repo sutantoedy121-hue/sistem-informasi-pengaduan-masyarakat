@@ -17,7 +17,12 @@ import type {
 
 /** User auth + profil. Profile di-fallback dari user_metadata bila trigger belum sempat membuatnya. */
 export async function getSession(): Promise<{
-  user: { id: string; email: string | null } | null;
+  user: {
+    id: string;
+    email: string | null;
+    /** Provider autentikasi user (mis. "google"), untuk UI profil. */
+    providers: string[];
+  } | null;
   profile: Profile | null;
 }> {
   const supabase = await createClient();
@@ -29,6 +34,8 @@ export async function getSession(): Promise<{
   const userData = {
     id: user.id,
     email: user.email ?? null,
+    providers:
+      user.identities?.map((i) => i.provider).filter(Boolean) as string[] ?? [],
   };
 
   const { data: profile } = await supabase

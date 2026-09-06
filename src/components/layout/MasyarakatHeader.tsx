@@ -7,12 +7,13 @@ import {
   Inbox,
   Plus,
   LogOut,
-  ShieldCheck,
+  Settings,
   UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import NotificationBell from "@/components/dashboard/NotificationBell";
+import PanelBrand from "@/components/layout/PanelBrand";
 
 const primaryTabs = [
   {
@@ -26,6 +27,12 @@ const primaryTabs = [
     label: "Aduan Saya",
     icon: Inbox,
     isActive: (p: string) => p.startsWith("/masyarakat/aduan"),
+  },
+  {
+    href: "/masyarakat/profil",
+    label: "Pengaturan",
+    icon: Settings,
+    isActive: (p: string) => p === "/masyarakat/profil",
   },
 ];
 
@@ -50,22 +57,7 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg">
       <div className="container-page flex h-16 items-center justify-between gap-3">
         {/* Brand */}
-        <Link href="/" className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white shadow-soft">
-            <ShieldCheck className="h-5 w-5" strokeWidth={2.5} />
-          </div>
-          <div className="flex min-w-0 flex-col leading-none">
-            <span className="flex items-center gap-2 text-base font-extrabold tracking-tight text-ink">
-              SIPMA
-              <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">
-                Masyarakat
-              </span>
-            </span>
-            <span className="truncate text-[10px] font-medium text-ink-muted">
-              Kabupaten Bojonegoro
-            </span>
-          </div>
-        </Link>
+        <PanelBrand roleLabel="Masyarakat" />
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-2 md:flex">
@@ -74,7 +66,10 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
             <Plus className="h-4 w-4" />
             Buat Aduan
           </Link>
-          <div className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3">
+          <Link
+            href="/masyarakat/profil"
+            className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition-colors hover:border-brand-200 hover:bg-brand-50/40"
+          >
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-brand-700">
               <UserCircle className="h-5 w-5" />
             </div>
@@ -86,7 +81,7 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
                 {email}
               </span>
             </div>
-          </div>
+          </Link>
           <button
             onClick={handleLogout}
             className="btn-ghost !px-3 !py-2 text-xs"
@@ -97,8 +92,8 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
           </button>
         </div>
 
-        {/* Mobile: aksi buat aduan + notifikasi + avatar akun */}
-        <div className="flex items-center gap-2 md:hidden">
+        {/* Mobile: aksi buat aduan + notifikasi + pengaturan akun */}
+        <div className="flex items-center gap-1.5 md:hidden">
           <Link
             href="/masyarakat/baru"
             className="btn-primary !px-3.5 !py-2 text-xs"
@@ -108,6 +103,13 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
             Aduan
           </Link>
           <NotificationBell />
+          <Link
+            href="/masyarakat/profil"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-ink-muted transition-colors hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
+            aria-label="Pengaturan profil"
+          >
+            <Settings className="h-4 w-4" />
+          </Link>
           <button
             onClick={handleLogout}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-ink-muted transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"

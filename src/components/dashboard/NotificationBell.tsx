@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Bell, Check, Loader2 } from "lucide-react";
 import { cn, formatRelativeTimeID } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import type { NotificationRow } from "@/lib/db-types";
+import type { NotificationRow, UserRole } from "@/lib/db-types";
 
 /**
  * Lonceng notifikasi real-time untuk dashboard masyarakat (FR-06A).
@@ -22,7 +22,22 @@ export default function NotificationBell() {
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [marking, setMarking] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>("masyarakat");
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Base path panel sesuai role → arah link notifikasi yang benar (juga
+  // dipakai bell di Navbar publik untuk semua role yang login).
+  const basePath = userRole === "masyarakat"
+    ? "/masyarakat"
+    : userRole === "petugas"
+      ? "/petugas"
+      : userRole === "pimpinan"
+        ? "/pimpinan"
+        : "/admin";
+  // Admin punya panel tapi tanpa rute aduan/notifikasi; item aduan arahkan ke
+  // dashboard panel. Hanya masyarakat yang punya halaman "semua notifikasi".
+  const notifListHref =
+    userRole === "masyarakat" ? `${basePath}/notifikasi` : basePath;
 
   // Muat awal + tandai dibaca saat dropdown dibuka? Muat sekali di mount.
   useEffect(() => {
@@ -30,6 +45,15 @@ export default function NotificationBell() {
     const supabase = createClient();
 
     async function load() {
+      // Role dari user_metadata (di-set saat signup/update). Tanpa query profil
+      // tambahan — cukup untuk menentukan arah link "Lihat semua".
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user?.user_metadata?.role) {
+        setUserRole(user.user_metadata.role as UserRole);
+      }
+
       const { data } = await supabase
         .from("notifications")
         .select("*")
@@ -135,7 +159,7 @@ export default function NotificationBell() {
               items.map((n) => (
                 <Link
                   key={n.id}
-                  href={n.complaint_id ? `/masyarakat/aduan/${n.complaint_id}` : "/masyarakat"}
+                  href={n.complaint_id && userRole !== "admin" ? `${basePath}/aduan/${n.complaint_id}` : basePath}
                   onClick={() => setOpen(false)}
                   className={cn(
                     "flex gap-3 px-4 py-3 transition-colors hover:bg-slate-50",
@@ -167,7 +191,7 @@ export default function NotificationBell() {
           </div>
 
           <Link
-            href="/masyarakat/notifikasi"
+            href={notifListHref}
             onClick={() => setOpen(false)}
             className="block border-t border-slate-100 px-4 py-2.5 text-center text-xs font-semibold text-brand-600 hover:bg-slate-50"
           >

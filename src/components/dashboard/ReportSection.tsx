@@ -5,7 +5,8 @@ import {
   categoryLabel,
   regionLabel,
 } from "@/lib/utils";
-import { getPhotoUrl } from "@/lib/storage";
+import { getPhotoUrl, getAssetUrl } from "@/lib/storage";
+import { getSiteSettings } from "@/lib/queries";
 import {
   labelStatus,
   labelAction,
@@ -23,21 +24,32 @@ interface Props {
  * (window.print dari tombol "Cetak / PDF" di ReportActions).
  * Satu-satunya elemen dengan id #report-print di halaman.
  */
-export default function ReportSection({ complaint: c, logs }: Props) {
+export default async function ReportSection({ complaint: c, logs }: Props) {
   const photo = getPhotoUrl(c.photo_url);
   const region = regionLabel(c.region);
   const printedAt = new Date();
+  const settings = await getSiteSettings(); // nama situs + logo untuk kop
+  const logoUrl = getAssetUrl(settings?.logo_url);
+  const siteName = settings?.site_name || "SIPMA";
 
   return (
     <div id="report-print" className="hidden">
       {/* Kop */}
       <div className="flex items-start justify-between gap-4 pb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
-            <ShieldCheck className="h-6 w-6" strokeWidth={2.5} />
-          </div>
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={`Logo ${siteName}`}
+              className="h-11 w-auto max-w-[140px] object-contain"
+            />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
+              <ShieldCheck className="h-6 w-6" strokeWidth={2.5} />
+            </div>
+          )}
           <div>
-            <p className="text-lg font-extrabold tracking-tight text-ink">SIPMA</p>
+            <p className="text-lg font-extrabold tracking-tight text-ink">{siteName}</p>
             <p className="text-xs text-ink-muted">Kabupaten Bojonegoro</p>
           </div>
         </div>

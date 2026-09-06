@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { getAssetUrl } from "@/lib/storage";
 import { useRouter } from "next/navigation";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 
 const navLinks = [
   { href: "/#beranda", label: "Beranda" },
@@ -114,6 +115,7 @@ export default function Navbar() {
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
             <div className="flex items-center gap-2">
+              <NotificationBell />
               <Link href="/masyarakat" className="btn-ghost gap-2">
                 <UserCircle className="h-4 w-4" />
                 <span className="max-w-[140px] truncate">{user.name}</span>
@@ -166,10 +168,17 @@ export default function Navbar() {
           <div className="mt-2 flex flex-col gap-2">
             {user ? (
               <>
-                <Link href="/masyarakat" className="btn-secondary w-full" onClick={() => setOpen(false)}>
-                  <UserCircle className="h-4 w-4" />
-                  Dashboard Saya
-                </Link>
+                <div className="flex items-center gap-2">
+                  <NotificationBell />
+                  <Link
+                    href="/masyarakat/profil"
+                    className="btn-secondary w-full justify-start"
+                    onClick={() => setOpen(false)}
+                  >
+                    <UserCircle className="h-4 w-4" />
+                    Pengaturan Profil
+                  </Link>
+                </div>
                 <button
                   onClick={() => { handleLogout(); setOpen(false); }}
                   className="btn-secondary w-full"
