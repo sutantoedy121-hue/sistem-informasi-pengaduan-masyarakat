@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   AtSign,
   Eye,
+  Phone,
   EyeOff,
   KeyRound,
   Loader2,
@@ -41,6 +42,7 @@ interface Props {
   fullName: string;
   role: UserRole;
   provider: string | null;
+  phone?: string | null;
 }
 
 /**
@@ -55,6 +57,7 @@ export default function ProfileSettingsClient({
   fullName,
   role,
   provider,
+  phone,
 }: Props) {
   const router = useRouter();
   const home = ROLE_HOME[role] || "/";
@@ -132,6 +135,12 @@ export default function ProfileSettingsClient({
                 <AtSign className="h-3.5 w-3.5" />
                 <span className="truncate">{email}</span>
               </p>
+              {phone && (
+                <p className="flex items-center gap-1.5 text-sm text-ink-muted">
+                  <Phone className="h-3.5 w-3.5" />
+                  <span className="truncate">{phone}</span>
+                </p>
+              )}
             </div>
             <span className="ml-auto shrink-0 badge bg-brand-50 text-brand-700 ring-1 ring-brand-100">
               <ShieldCheck className="h-3 w-3" />
@@ -143,12 +152,12 @@ export default function ProfileSettingsClient({
           <div className="card mt-6 p-6">
             <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
               <User className="h-4 w-4 text-brand-600" />
-              Nama Lengkap
+              Nama & Telepon
             </h2>
             <p className="mt-1 text-sm text-ink-muted">
               {isOAuth
                 ? "Nama kamu diambil dari akun Google. Ubah di sini bila ingin memakai nama lain."
-                : "Nama yang ditampilkan pada aduan & riwayat."}
+                : "Data yang ditampilkan pada aduan & riwayat."}
             </p>
 
             {profileSuccess && (
@@ -180,6 +189,23 @@ export default function ProfileSettingsClient({
                   className="input-field mt-1.5"
                 />
               </div>
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-ink"
+                >
+                  Nomor Telepon
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  maxLength={20}
+                  defaultValue={phone ?? ""}
+                  placeholder="08xxxxxxxxxx"
+                  className="input-field mt-1.5"
+                />
+              </div>
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -192,7 +218,7 @@ export default function ProfileSettingsClient({
                       Menyimpan...
                     </>
                   ) : (
-                    "Simpan Nama"
+                    "Simpan Perubahan"
                   )}
                 </button>
               </div>

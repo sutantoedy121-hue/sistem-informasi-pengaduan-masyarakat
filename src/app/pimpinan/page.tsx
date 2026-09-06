@@ -19,7 +19,7 @@ export default async function PimpinanHomePage() {
             Panel Pimpinan
           </p>
           <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-            Halo, {profile?.full_name?.split(" ")[0] || "Pimpinan"} 👋
+            Halo, {profile?.full_name?.split(" ")[0] || "Pimpinan"}
           </h1>
           <p className="mt-1 text-sm text-ink-muted">
             Pantau kinerja penanganan aduan warga Kabupaten Bojonegoro.

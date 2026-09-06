@@ -113,7 +113,7 @@ export default function TrackTicket() {
                       </div>
                       <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                         <dt className="shrink-0 text-ink-muted">Kategori</dt>
-                        <dd className="font-medium text-ink">{result.data.category?.name || "—"}</dd>
+                        <dd className="font-medium text-ink">{result.data.category?.name || "-"}</dd>
                       </div>
                       <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <dt className="shrink-0 text-ink-muted">Status</dt>

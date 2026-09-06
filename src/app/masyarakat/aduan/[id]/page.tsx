@@ -206,7 +206,7 @@ export default async function DetailAduanPage({ params }: Props) {
                         Lokasi
                       </dt>
                       <dd className="text-right font-medium text-ink">
-                        {complaint.location || "—"}
+                        {complaint.location || "-"}
                         {complaint.lat != null && complaint.lng != null && (
                           <a
                             href={`https://www.google.com/maps?q=${complaint.lat},${complaint.lng}`}

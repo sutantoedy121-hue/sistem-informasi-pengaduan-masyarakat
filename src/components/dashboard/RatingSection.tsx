@@ -57,7 +57,7 @@ export default function RatingSection({ complaintId, alreadyRated }: Props) {
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
           <div>
             <p className="text-sm font-semibold text-emerald-800">
-              Terima kasih atas penilaianmu! 🙏
+              Terima kasih atas penilaianmu!
             </p>
             <p className="mt-0.5 text-sm text-emerald-700">
               Umpan balikmu membantu pemerintah daerah meningkatkan kualitas penanganan

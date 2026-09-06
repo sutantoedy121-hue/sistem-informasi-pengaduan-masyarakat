@@ -137,7 +137,7 @@ export default function PublicRecentSection() {
                     </div>
                     <div className="col-span-2 hidden items-center text-sm text-ink-muted md:flex">
                       <MapPin className="mr-1.5 h-3.5 w-3.5 text-ink-faint" />
-                      {c.location || "—"}
+                      {c.location || "-"}
                     </div>
                     <div className="col-span-2 flex items-center md:flex">
                       <span className={`badge ${meta.badge}`}>

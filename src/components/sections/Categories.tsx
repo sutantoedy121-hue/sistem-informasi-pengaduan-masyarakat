@@ -44,9 +44,6 @@ export default async function Categories() {
                   >
                     <Icon name={cat.icon} className="h-6 w-6" />
                   </div>
-                  <span className="text-xs font-semibold text-ink-faint">
-                    {cat.count} aduan
-                  </span>
                 </div>
                 <h3 className="mt-5 text-lg font-bold text-ink group-hover:text-brand-700">
                   {cat.name}

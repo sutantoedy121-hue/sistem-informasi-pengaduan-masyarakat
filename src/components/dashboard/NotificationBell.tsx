@@ -114,6 +114,72 @@ export default function NotificationBell() {
     router.refresh();
   }
 
+  function renderDropdown() {
+    return (
+      <>
+        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
+          <p className="text-sm font-bold text-ink">Notifikasi</p>
+          <button
+            onClick={handleMarkAll}
+            disabled={marking || unread === 0}
+            className="flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-40"
+          >
+            {marking ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+            Tandai dibaca
+          </button>
+        </div>
+
+        <div className="max-h-80 overflow-y-auto">
+          {items.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-ink-muted">
+              Belum ada notifikasi.
+            </p>
+          ) : (
+            items.map((n) => (
+              <Link
+                key={n.id}
+                href={n.complaint_id && userRole !== "admin" ? `${basePath}/aduan/${n.complaint_id}` : basePath}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "flex gap-3 px-4 py-3 transition-colors hover:bg-slate-50",
+                  !n.is_read && "bg-brand-50/50"
+                )}
+              >
+                <span
+                  className={cn(
+                    "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+                    n.is_read ? "bg-slate-200" : "bg-brand-500"
+                  )}
+                />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-ink">
+                    {n.title}
+                  </span>
+                  {n.body && (
+                    <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-ink-muted">
+                      {n.body}
+                    </span>
+                  )}
+                  <span className="mt-1 block text-[11px] text-ink-faint">
+                    {formatRelativeTimeID(n.created_at)}
+                  </span>
+                </span>
+              </Link>
+            ))
+          )}
+        </div>
+
+        <Link
+          href={notifListHref}
+          onClick={() => setOpen(false)}
+          className="block border-t border-slate-100 px-4 py-2.5 text-center text-xs font-semibold text-brand-600 hover:bg-slate-50"
+        >
+          Lihat semua notifikasi
+        </Link>
+      </>
+    );
+  }
+
   return (
     <div ref={dropdownRef} className="relative">
       {/* Tombol bel */}
@@ -135,69 +201,27 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown */}
+      {/* Dropdown — mobile: modal center layar; lg+: dropdown di kanan bel */}
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-            <p className="text-sm font-bold text-ink">Notifikasi</p>
-            <button
-              onClick={handleMarkAll}
-              disabled={marking || unread === 0}
-              className="flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-40"
-            >
-              {marking ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
-              Tandai dibaca
-            </button>
-          </div>
-
-          <div className="max-h-80 overflow-y-auto">
-            {items.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-ink-muted">
-                Belum ada notifikasi.
-              </p>
-            ) : (
-              items.map((n) => (
-                <Link
-                  key={n.id}
-                  href={n.complaint_id && userRole !== "admin" ? `${basePath}/aduan/${n.complaint_id}` : basePath}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex gap-3 px-4 py-3 transition-colors hover:bg-slate-50",
-                    !n.is_read && "bg-brand-50/50"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                      n.is_read ? "bg-slate-200" : "bg-brand-500"
-                    )}
-                  />
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold text-ink">
-                      {n.title}
-                    </span>
-                    {n.body && (
-                      <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-ink-muted">
-                        {n.body}
-                      </span>
-                    )}
-                    <span className="mt-1 block text-[11px] text-ink-faint">
-                      {formatRelativeTimeID(n.created_at)}
-                    </span>
-                  </span>
-                </Link>
-              ))
-            )}
-          </div>
-
-          <Link
-            href={notifListHref}
+        <>
+          {/* Mobile: backdrop + panel center (flex centering — tanpa transform) */}
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 lg:hidden"
             onClick={() => setOpen(false)}
-            className="block border-t border-slate-100 px-4 py-2.5 text-center text-xs font-semibold text-brand-600 hover:bg-slate-50"
           >
-            Lihat semua notifikasi
-          </Link>
-        </div>
+            <div
+              className="w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {renderDropdown()}
+            </div>
+          </div>
+
+          {/* Desktop: dropdown di kanan bel */}
+          <div className="absolute right-0 top-11 z-50 hidden w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl lg:block">
+            {renderDropdown()}
+          </div>
+        </>
       )}
     </div>
   );

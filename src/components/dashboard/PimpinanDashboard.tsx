@@ -79,10 +79,13 @@ export default function PimpinanDashboard({
 
   return (
     <div className="container-page py-8">
-      {/* Stat tile */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {/* Stat tile — mobile: scroll horizontal agar tiap tile lega; lg: 6 kolom */}
+      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible lg:pb-0">
         {tiles.map((t) => (
-          <div key={t.label} className="card p-4 sm:p-5">
+          <div
+            key={t.label}
+            className="card w-[46vw] min-w-[160px] max-w-[210px] shrink-0 snap-start p-4 sm:p-5 lg:w-auto lg:min-w-0 lg:max-w-none"
+          >
             <span
               className={cn(
                 "flex h-10 w-10 items-center justify-center rounded-xl",

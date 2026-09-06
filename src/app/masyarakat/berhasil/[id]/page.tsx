@@ -51,7 +51,7 @@ export default async function BerhasilAduanPage({ params }: Props) {
               <CheckCircle2 className="h-9 w-9" />
             </div>
             <h1 className="mt-5 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-              Aduan Berhasil Diajukan 🎉
+              Aduan Berhasil Diajukan
             </h1>
             <p className="mt-2 text-sm text-ink-muted sm:text-base">
               Terima kasih, {profile?.full_name?.split(" ")[0] || "Warga"}.
@@ -108,7 +108,7 @@ export default async function BerhasilAduanPage({ params }: Props) {
           {/* Info lanjutan */}
           <div className="mt-6 rounded-2xl border border-brand-100 bg-brand-50/50 p-5 text-sm text-ink-soft">
             <p>
-              📌 Aduanmu akan ditindaklanjuti petugas <strong>paling lambat 1×24 jam</strong>.
+              Aduanmu akan ditindaklanjuti petugas <strong>paling lambat 1×24 jam</strong>.
               Pantau perkembangan status kapan saja lewat halaman detail, atau gunakan
               nomor tiket di atas di beranda SIPMA.
             </p>

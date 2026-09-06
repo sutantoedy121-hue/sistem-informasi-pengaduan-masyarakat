@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Search, Globe, Monitor, Smartphone } from "lucide-react";
 import { cn, formatDateTimeID } from "@/lib/utils";
 import type { AdminUserRow, LoginLogRow } from "@/lib/db-types";
+import Pagination from "@/components/ui/Pagination";
 
 interface Props {
   logs: LoginLogRow[];
@@ -25,6 +26,8 @@ function deviceLabel(ua: string | null): { label: string; icon: typeof Monitor }
 export default function AdminLoginLogs({ logs, users }: Props) {
   const [userId, setUserId] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
 
   // User list yang masih ada untuk filter pill (paling banyak 8).
   const recentUsers = useMemo(() => {
@@ -47,6 +50,10 @@ export default function AdminLoginLogs({ logs, users }: Props) {
     });
   }, [logs, userId, q]);
 
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageRows = visible.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <div className="container-page py-8">
       <div>
@@ -65,7 +72,7 @@ export default function AdminLoginLogs({ logs, users }: Props) {
         <input
           type="text"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => { setQ(e.target.value); setPage(1); }}
           placeholder="Cari email..."
           className="input-field pl-10"
         />
@@ -74,7 +81,7 @@ export default function AdminLoginLogs({ logs, users }: Props) {
       {/* Filter per user */}
       <div className="mt-4 flex flex-wrap gap-2">
         <button
-          onClick={() => setUserId("all")}
+          onClick={() => { setUserId("all"); setPage(1); }}
           className={cn(
             "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
             userId === "all"
@@ -89,7 +96,7 @@ export default function AdminLoginLogs({ logs, users }: Props) {
           return (
             <button
               key={id}
-              onClick={() => setUserId(id)}
+              onClick={() => { setUserId(id); setPage(1); }}
               className={cn(
                 "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
                 userId === id
@@ -136,12 +143,12 @@ export default function AdminLoginLogs({ logs, users }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {visible.map((l) => {
+              {pageRows.map((l) => {
                 const dev = deviceLabel(l.user_agent);
                 return (
                   <tr key={l.id} className="transition-colors hover:bg-brand-50/40">
                     <td className="px-5 py-3.5">
-                      <p className="font-semibold text-ink">{l.email ?? "—"}</p>
+                      <p className="font-semibold text-ink">{l.email ?? "-"}</p>
                     </td>
                     <td className="px-5 py-3.5 text-xs text-ink-muted">
                       {formatDateTimeID(l.created_at)}
@@ -154,7 +161,7 @@ export default function AdminLoginLogs({ logs, users }: Props) {
                     </td>
                     <td className="px-5 py-3.5">
                       <span className="font-mono text-xs text-ink-soft">
-                        {l.ip_address || "—"}
+                        {l.ip_address || "-"}
                       </span>
                     </td>
                   </tr>
@@ -164,6 +171,13 @@ export default function AdminLoginLogs({ logs, users }: Props) {
           </table>
         )}
       </div>
+      {visible.length > PAGE_SIZE && (
+        <Pagination
+          page={safePage}
+          pageCount={pageCount}
+          onChange={setPage}
+        />
+      )}
     </div>
   );
 }

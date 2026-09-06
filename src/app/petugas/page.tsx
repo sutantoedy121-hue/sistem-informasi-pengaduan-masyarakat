@@ -18,7 +18,7 @@ export default async function PetugasHomePage() {
             Panel Petugas
           </p>
           <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-            Halo, {profile?.full_name?.split(" ")[0] || "Petugas"} 👋
+            Halo, {profile?.full_name?.split(" ")[0] || "Petugas"}
           </h1>
           <p className="mt-1 text-sm text-ink-muted">
             Kelola verifikasi, penugasan, dan tindak lanjut seluruh aduan warga.

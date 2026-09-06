@@ -155,8 +155,10 @@ export async function updateProfileAction(
   formData: FormData
 ): Promise<AuthState> {
   const fullName = String(formData.get("fullName") || "").replace(/\s+/g, " ").trim();
+  const phone = String(formData.get("phone") || "").trim() || null;
   if (!fullName) return { error: "Nama lengkap wajib diisi." };
   if (fullName.length > 80) return { error: "Nama lengkap maksimal 80 karakter." };
+  if (phone && phone.length > 20) return { error: "Nomor telepon maksimal 20 karakter." };
 
   const supabase = await createClient();
   const {
@@ -166,15 +168,15 @@ export async function updateProfileAction(
 
   const { error } = await supabase
     .from("profiles")
-    .update({ full_name: fullName })
+    .update({ full_name: fullName, phone })
     .eq("id", user.id);
   if (error) {
     console.error("updateProfileAction error:", error);
     return { error: "Gagal menyimpan nama. Coba lagi." };
   }
 
-  // Sinkronkan nama di user_metadata (dipakai Navbar & tampilan lain).
-  await supabase.auth.updateUser({ data: { full_name: fullName } }).catch(() => {});
+  // Sinkronkan nama & telepon di user_metadata (dipakai Navbar & fallback profil).
+  await supabase.auth.updateUser({ data: { full_name: fullName, phone } }).catch(() => {});
 
   revalidatePath("/", "layout");
   // Revalidasi panel yang mengarah ke profil (path generik cukup).

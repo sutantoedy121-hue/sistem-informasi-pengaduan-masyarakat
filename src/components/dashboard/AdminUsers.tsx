@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn, formatDateID } from "@/lib/utils";
 import type { AdminUserRow, UserRole } from "@/lib/db-types";
+import Pagination from "@/components/ui/Pagination";
 import {
   createUserAction,
   updateUserRoleAction,
@@ -63,6 +64,8 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
   const [filter, setFilter] = useState<(typeof roleFilters)[number]["value"]>("semua");
   const [q, setQ] = useState("");
   const [pending, startTransition] = useTransition();
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
 
   const visible = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -77,6 +80,10 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
       );
     });
   }, [users, filter, q]);
+
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageRows = visible.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const counts = useMemo(
     () =>
@@ -194,7 +201,7 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
         <input
           type="text"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => { setQ(e.target.value); setPage(1); }}
           placeholder="Cari email / nama..."
           className="input-field pl-10"
         />
@@ -205,7 +212,7 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
         {roleFilters.map((f) => (
           <button
             key={f.value}
-            onClick={() => setFilter(f.value)}
+            onClick={() => { setFilter(f.value); setPage(1); }}
             className={cn(
               "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
               filter === f.value
@@ -252,11 +259,11 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {visible.map((u) => (
+              {pageRows.map((u) => (
                 <tr key={u.id} className="transition-colors hover:bg-brand-50/40">
                   <td className="px-5 py-3.5">
-                    <p className="font-semibold text-ink">{u.fullName ?? "—"}</p>
-                    <p className="text-xs text-ink-muted">{u.email ?? "—"}</p>
+                    <p className="font-semibold text-ink">{u.fullName ?? "-"}</p>
+                    <p className="text-xs text-ink-muted">{u.email ?? "-"}</p>
                   </td>
                   <td className="px-5 py-3.5">
                     <select
@@ -332,6 +339,13 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
           </table>
         )}
       </div>
+      {visible.length > PAGE_SIZE && (
+        <Pagination
+          page={safePage}
+          pageCount={pageCount}
+          onChange={setPage}
+        />
+      )}
 
       {/* Modal */}
       {modal && (

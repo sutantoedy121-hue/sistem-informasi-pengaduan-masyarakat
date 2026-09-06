@@ -16,7 +16,7 @@ const TILES: {
   { label: "Selesai Ditangani", value: (s) => s.selesai.toLocaleString("id-ID"), sub: (s) => `${s.penyelesaianPct}% tingkat penyelesaian · ${s.selesai} aduan`, icon: "CheckCircle2" },
   { label: "Sedang Diproses", value: (s) => s.sedangDiproses.toLocaleString("id-ID"), sub: (s) => `${s.sedangDiproses} aduan ditangani`, icon: "Loader" },
   { label: "Waktu Respons", value: () => "< 12 jam", sub: () => "target layanan", icon: "Timer" },
-  { label: "Kepuasan Warga", value: (s) => s.avgRating === null ? "—" : `${s.avgRating.toLocaleString("id-ID")} / 5`, sub: (s) => s.ratedCount ? `dari ${s.ratedCount} penilaian` : "belum ada penilaian", icon: "Star" },
+  { label: "Kepuasan Warga", value: (s) => s.avgRating === null ? "-" : `${s.avgRating.toLocaleString("id-ID")} / 5`, sub: (s) => s.ratedCount ? `dari ${s.ratedCount} penilaian` : "belum ada penilaian", icon: "Star" },
 ];
 
 /**

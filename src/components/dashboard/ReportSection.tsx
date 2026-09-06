@@ -114,7 +114,7 @@ export default async function ReportSection({ complaint: c, logs }: Props) {
           </div>
           <div className="flex border-b border-slate-100 py-1.5">
             <dt className="w-36 shrink-0 text-ink-muted">Telepon</dt>
-            <dd className="font-medium text-ink">{c.reporter?.phone ?? "—"}</dd>
+            <dd className="font-medium text-ink">{c.reporter?.phone ?? "-"}</dd>
           </div>
         </dl>
       </section>
@@ -126,7 +126,7 @@ export default async function ReportSection({ complaint: c, logs }: Props) {
         <dl className="mt-2 text-sm">
           <div className="flex border-b border-slate-100 py-1.5">
             <dt className="w-36 shrink-0 text-ink-muted">Alamat</dt>
-            <dd className="font-medium text-ink">{c.location || "—"}</dd>
+            <dd className="font-medium text-ink">{c.location || "-"}</dd>
           </div>
           {c.location_detail && (
             <div className="flex border-b border-slate-100 py-1.5">
@@ -193,7 +193,7 @@ export default async function ReportSection({ complaint: c, logs }: Props) {
                     {log.description || log.result || ""}
                   </td>
                   <td className="py-1.5 text-ink-muted">
-                    {log.actor?.full_name || "—"}
+                    {log.actor?.full_name || "-"}
                   </td>
                 </tr>
               ))}

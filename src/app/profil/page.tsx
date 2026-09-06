@@ -24,6 +24,7 @@ export default async function ProfilePage() {
     <ProfileSettingsClient
       email={user.email || ""}
       fullName={profile.full_name || ""}
+      phone={profile.phone}
       role={profile.role}
       provider={user.providers.includes("google") ? "google" : null}
     />

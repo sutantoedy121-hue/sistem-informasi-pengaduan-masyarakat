@@ -115,14 +115,14 @@ export default async function PetugasDetailAduanPage({ params }: Props) {
                     <Phone className="h-3.5 w-3.5" />
                     <span className="w-24 shrink-0 text-ink-faint">Telepon</span>
                     <span className="font-medium text-ink">
-                      {complaint.reporter?.phone ?? "—"}
+                      {complaint.reporter?.phone ?? "-"}
                     </span>
                   </div>
                   <div className="flex items-start gap-2 text-ink-muted">
                     <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <span className="w-24 shrink-0 text-ink-faint">Wilayah</span>
                     <span className="font-medium text-ink">
-                      {regionLabel(complaint.region) ?? "—"}
+                      {regionLabel(complaint.region) ?? "-"}
                     </span>
                   </div>
                 </dl>
@@ -192,7 +192,7 @@ export default async function PetugasDetailAduanPage({ params }: Props) {
                         Lokasi
                       </dt>
                       <dd className="text-right font-medium text-ink">
-                        {complaint.location || "—"}
+                        {complaint.location || "-"}
                         {complaint.lat != null && complaint.lng != null && (
                           <a
                             href={`https://www.google.com/maps?q=${complaint.lat},${complaint.lng}`}

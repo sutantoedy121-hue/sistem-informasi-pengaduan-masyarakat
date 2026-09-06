@@ -8,7 +8,7 @@ import AuthAwareCTA from "@/components/ui/AuthAwareCTA";
 /** Teks heading dengan animasi ketik (typewriter), huruf muncul 1-per-1,
  * lalu jeda 10–15 detik, lalu ketik dari awal lagi. */
 function TypewriterHeadline() {
-  const text = "Suarakan wargamu, lacak sampai tuntas";
+  const text = "Laporkan Keluhanmu, dan lacak sampai tuntas";
   const [count, setCount] = useState(0);
   const [phase, setPhase] = useState<"typing" | "paused" | "deleting">("typing");
 
@@ -65,7 +65,7 @@ export default function Hero() {
           <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg">
             SIPMA memberi kanal resmi untuk menyampaikan pengaduan, menerima
             nomor tiket otomatis, dan memantau status penanganan secara
-            real-time — transparan, cepat, dan akuntabel.
+            real-time, transparan, cepat, dan akuntabel.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">

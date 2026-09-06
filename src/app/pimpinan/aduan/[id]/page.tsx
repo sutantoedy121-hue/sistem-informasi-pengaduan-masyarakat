@@ -134,7 +134,7 @@ export default async function PimpinanDetailAduanPage({ params }: Props) {
                         Telepon
                       </dt>
                       <dd className="text-right font-medium text-ink">
-                        {complaint.reporter?.phone ?? "—"}
+                        {complaint.reporter?.phone ?? "-"}
                       </dd>
                     </div>
                     <div className="flex justify-between gap-3">
@@ -143,7 +143,7 @@ export default async function PimpinanDetailAduanPage({ params }: Props) {
                         Wilayah
                       </dt>
                       <dd className="text-right font-medium text-ink">
-                        {regionLabel(complaint.region) ?? "—"}
+                        {regionLabel(complaint.region) ?? "-"}
                       </dd>
                     </div>
                     <div className="flex justify-between gap-3">
@@ -152,7 +152,7 @@ export default async function PimpinanDetailAduanPage({ params }: Props) {
                         Lokasi
                       </dt>
                       <dd className="text-right font-medium text-ink">
-                        {complaint.location || "—"}
+                        {complaint.location || "-"}
                         {complaint.lat != null && complaint.lng != null && (
                           <a
                             href={`https://www.google.com/maps?q=${complaint.lat},${complaint.lng}`}

@@ -93,7 +93,7 @@ export default async function NotifikasiPage({ searchParams }: Props) {
                 <Inbox className="h-7 w-7" />
               </div>
               <h3 className="mt-4 text-base font-bold text-ink">
-                {filter === "unread" ? "Semua sudah dibaca 🎉" : "Belum ada notifikasi"}
+                {filter === "unread" ? "Semua sudah dibaca" : "Belum ada notifikasi"}
               </h3>
               <p className="mt-1 max-w-xs text-sm text-ink-muted">
                 Pembaruan status aduanmu akan muncul di sini.

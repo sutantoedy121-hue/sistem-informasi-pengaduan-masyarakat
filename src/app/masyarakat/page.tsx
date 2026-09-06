@@ -17,7 +17,7 @@ export default async function MasyarakatHomePage() {
             Dashboard Warga
           </p>
           <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
-            Halo, {profile?.full_name?.split(" ")[0] || "Warga"} 👋
+            Halo, {profile?.full_name?.split(" ")[0] || "Warga"}
           </h1>
           <p className="mt-1 text-sm text-ink-muted">
             Pantau dan kelola seluruh pengaduan yang kamu sampaikan.
