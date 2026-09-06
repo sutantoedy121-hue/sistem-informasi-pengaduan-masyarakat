@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-nippo: "Nippo", "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-ink antialiased;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Subtle grid background utility */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Soft radial glow */
+  .bg-glow {
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgba(49, 134, 247, 0.10), transparent 70%);
+  }
+
+  ::selection {
+    @apply bg-brand-200/70 text-brand-900;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white shadow-soft hover:bg-brand-700 hover:shadow-card active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply btn border border-slate-200 bg-white text-ink hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700;
+  }
+
+  .btn-ghost {
+    @apply btn text-ink-soft hover:bg-slate-100 hover:text-ink;
+  }
+
+  .card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-soft;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-300 hover:-translate-y-1 hover:shadow-card hover:border-brand-200;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-faint shadow-sm transition-colors focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  .section-eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700;
+  }
+}
+
+/* ------------------------------------------------------------
+   CETAK LAPORAN ADUAN
+   "Cetak / PDF" memicu window.print. Hanya elemen #report-print
+   yang tampil; shell halaman (navbar, aksi, footer) disembunyikan.
+   ------------------------------------------------------------ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #report-print,
+  #report-print * {
+    visibility: visible;
+  }
+  #report-print {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    padding: 32px;
+    background: #fff;
+  }
+  #report-print .card {
+    box-shadow: none;
+    border-color: #ddd;
+  }
+  #report-print img {
+    break-inside: avoid;
+  }
+  #report-print table {
+    page-break-inside: auto;
+  }
+  #report-print tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

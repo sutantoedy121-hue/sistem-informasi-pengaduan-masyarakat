@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST https://wopmvvslvbinhhknqzvt.supabase.co/auth/v1/signup -H 'apikey: sb_publishable_t-kfY1luP8ZksNqG_ux_cA_rrx7YUld' -H 'Content-Type: application/json' -d '{\"email\":\"warga2@gmail.com\",\"password\":\"test123456\",\"options\":{\"data\":{\"full_name\":\"Warga Dua\",\"phone\":\"081234567890\",\"role\":\"masyarakat\"}}}')",
+      "Bash(node -e \"const d=require\\('/tmp/signup.json'\\); console.log\\('id:',d.id\\); console.log\\('confirmation_sent_at:',d.confirmation_sent_at\\); console.log\\('access_token:', d.access_token? 'YES \\(auto-login, no confirm needed\\)':'NONE \\(email confirmation active\\)'\\)\")",
+      "Bash(curl -s -X POST https://wopmvvslvbinhhknqzvt.supabase.co/auth/v1/signup -H 'apikey: sb_publishable_t-kfY1luP8ZksNqG_ux_cA_rrx7YUld' -H 'Content-Type: application/json' -d '{\"email\":\"warga2@gmail.com\",\"password\":\"test123456\",\"options\":{\"data\":{\"full_name\":\"Warga Dua\",\"phone\":\"081234567890\",\"role\":\"masyarakat\"}}}' -o /c/Documents/SIPEMAS/.tmp_signup.json)",
+      "Bash(node -e \"const d=require\\('./.tmp_signup.json'\\); console.log\\('id:',d.id\\); console.log\\('confirmation_sent_at:',d.confirmation_sent_at\\); console.log\\('access_token:', d.access_token? 'YES \\(auto-login, no confirm needed\\)':'NONE \\(email confirmation still active\\)'\\)\")",
+      "Bash(curl -s -X POST https://wopmvvslvbinhhknqzvt.supabase.co/auth/v1/signup -H 'apikey: sb_publishable_t-kfY1luP8ZksNqG_ux_cA_rrx7YUld' -H 'Content-Type: application/json' -d '{\"email\":\"warga3@gmail.com\",\"password\":\"test123456\",\"options\":{\"data\":{\"full_name\":\"Warga Tiga\",\"phone\":\"081234567890\",\"role\":\"masyarakat\"}}}')",
+      "Bash(curl -s -X POST https://wopmvvslvbinhhknqzvt.supabase.co/auth/v1/token?grant_type=password -H 'apikey: sb_publishable_t-kfY1luP8ZksNqG_ux_cA_rrx7YUld' -H 'Content-Type: application/json' -d '{\"email\":\"testsipma@gmail.com\",\"password\":\"test123456\"}' -o /c/Documents/SIPEMAS/.tmp_login.json)",
+      "Bash(node -e \"const d=require\\('./.tmp_login.json'\\); console.log\\('access_token:', d.access_token? 'YES \\(login berhasil!\\)':'NONE'\\); console.log\\('error:', d.error_code || d.msg || 'tidak ada error'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"Server di 3002: HTTP %{http_code}\\\\n\" http://localhost:3002/login)",
+      "Bash(curl -s -X POST https://wopmvvslvbinhhknqzvt.supabase.co/auth/v1/signup -H 'apikey: sb_publishable_t-kfY1luP8ZksNqG_ux_cA_rrx7YUld' -H 'Content-Type: application/json' -d '{\"email\":\"warga20@gmail.com\",\"password\":\"test123456\",\"options\":{\"data\":{\"full_name\":\"Warga 20\"}}}')",
+      "Bash(supabase --version)",
+      "Bash(supabase projects *)",
+      "Bash(node -e ' *)",
+      "Bash(tail -60 /tmp/sipma-dev.log)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
