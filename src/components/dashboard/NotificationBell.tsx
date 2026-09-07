@@ -142,8 +142,9 @@ export default function NotificationBell() {
 
   function renderDropdown() {
     return (
-      <>
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
+      <div className="flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
           <p className="text-sm font-bold text-ink">Notifikasi</p>
           <button
             onClick={handleMarkAll}
@@ -155,7 +156,8 @@ export default function NotificationBell() {
           </button>
         </div>
 
-        <div className="max-h-80 overflow-y-auto">
+        {/* List — hanya bagian ini yang scroll */}
+        <div className="overflow-y-auto overscroll-contain">
           {items.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-ink-muted">
               Belum ada notifikasi.
@@ -206,14 +208,15 @@ export default function NotificationBell() {
           )}
         </div>
 
+        {/* Footer */}
         <Link
           href={notifListHref}
           onClick={() => setOpen(false)}
-          className="block border-t border-slate-100 px-4 py-2.5 text-center text-xs font-semibold text-brand-600 hover:bg-slate-50"
+          className="block shrink-0 border-t border-slate-100 px-4 py-3 text-center text-xs font-semibold text-brand-600 hover:bg-slate-50"
         >
           Lihat semua notifikasi
         </Link>
-      </>
+      </div>
     );
   }
 
@@ -241,15 +244,19 @@ export default function NotificationBell() {
       {/* Dropdown — mobile: modal center layar; lg+: dropdown di kanan bel */}
       {open && (
         <>
-          {/* Mobile: backdrop + panel center (flex centering — tanpa transform) */}
+          {/* Mobile: bottom sheet */}
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 lg:hidden"
+            className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-900/40 lg:hidden"
             onClick={() => setOpen(false)}
           >
             <div
-              className="w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl"
+              className="w-full overflow-hidden rounded-t-2xl border-t border-slate-200 bg-white shadow-2xl flex flex-col max-h-[80vh]"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Drag handle */}
+              <div className="flex justify-center py-2 shrink-0">
+                <div className="h-1 w-10 rounded-full bg-slate-200" />
+              </div>
               {renderDropdown()}
             </div>
           </div>
