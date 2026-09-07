@@ -107,11 +107,37 @@ export default function NotificationBell() {
     if (marking || unread === 0) return;
     setMarking(true);
     const supabase = createClient();
-    await supabase.from("notifications").update({ is_read: true }).eq("is_read", false);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+    }
     setItems((prev) => prev.map((n) => ({ ...n, is_read: true })));
     setUnread(0);
     setMarking(false);
+    setOpen(false);
     router.refresh();
+  }
+
+  async function handleItemClick(n: NotificationRow) {
+    setOpen(false);
+    if (n.is_read) return;
+    // Optimistic update
+    setItems((prev) =>
+      prev.map((item) => (item.id === n.id ? { ...item, is_read: true } : item))
+    );
+    setUnread((u) => Math.max(0, u - 1));
+    // Persist ke DB
+    const supabase = createClient();
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("id", n.id);
   }
 
   function renderDropdown() {
@@ -138,21 +164,32 @@ export default function NotificationBell() {
             items.map((n) => (
               <Link
                 key={n.id}
-                href={n.complaint_id && userRole !== "admin" ? `${basePath}/aduan/${n.complaint_id}` : basePath}
-                onClick={() => setOpen(false)}
+                href={
+                  n.complaint_id && userRole !== "admin"
+                    ? `${basePath}/aduan/${n.complaint_id}`
+                    : basePath
+                }
+                onClick={() => handleItemClick(n)}
                 className={cn(
-                  "flex gap-3 px-4 py-3 transition-colors hover:bg-slate-50",
+                  "flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50",
                   !n.is_read && "bg-brand-50/50"
                 )}
               >
                 <span
                   className={cn(
-                    "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+                    "mt-[7px] h-2 w-2 shrink-0 rounded-full",
                     n.is_read ? "bg-slate-200" : "bg-brand-500"
                   )}
                 />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-ink">
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={cn(
+                      "block text-sm leading-snug",
+                      n.is_read
+                        ? "font-medium text-ink-soft"
+                        : "font-semibold text-ink"
+                    )}
+                  >
                     {n.title}
                   </span>
                   {n.body && (

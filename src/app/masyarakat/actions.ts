@@ -217,10 +217,22 @@ export async function trackComplaintAction(
 
 /** Tandai semua notifikasi user sudah dibaca. */
 export async function markNotificationsReadAction() {
-  await requireAuth();
+  const { id } = await requireAuth();
   const supabase = await createClient();
   await supabase
     .from("notifications")
     .update({ is_read: true })
+    .eq("user_id", id)
     .eq("is_read", false);
+}
+
+/** Tandai satu notifikasi sudah dibaca berdasarkan ID. */
+export async function markSingleNotificationReadAction(notificationId: string) {
+  const { id } = await requireAuth();
+  const supabase = await createClient();
+  await supabase
+    .from("notifications")
+    .update({ is_read: true })
+    .eq("id", notificationId)
+    .eq("user_id", id);
 }
