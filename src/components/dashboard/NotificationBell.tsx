@@ -144,12 +144,12 @@ export default function NotificationBell() {
     return (
       <div className="flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-slate-100 px-4 py-3">
-          <p className="text-sm font-bold text-ink">Notifikasi</p>
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-800 px-4 py-3">
+          <p className="text-sm font-bold text-white">Notifikasi</p>
           <button
             onClick={handleMarkAll}
             disabled={marking || unread === 0}
-            className="flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-40"
+            className="flex items-center gap-1 text-xs font-semibold text-neutral-300 hover:text-white disabled:opacity-40"
           >
             {marking ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
             Tandai dibaca
@@ -159,7 +159,7 @@ export default function NotificationBell() {
         {/* List — hanya bagian ini yang scroll */}
         <div className="overflow-y-auto overscroll-contain">
           {items.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-ink-muted">
+            <p className="px-4 py-8 text-center text-sm text-neutral-500">
               Belum ada notifikasi.
             </p>
           ) : (
@@ -173,14 +173,14 @@ export default function NotificationBell() {
                 }
                 onClick={() => handleItemClick(n)}
                 className={cn(
-                  "flex items-start gap-3 px-4 py-3 transition-colors hover:bg-slate-50",
-                  !n.is_read && "bg-brand-50/50"
+                  "flex items-start gap-3 px-4 py-3 transition-colors hover:bg-neutral-900",
+                  !n.is_read && "bg-neutral-900/60"
                 )}
               >
                 <span
                   className={cn(
                     "mt-[7px] h-2 w-2 shrink-0 rounded-full",
-                    n.is_read ? "bg-slate-200" : "bg-brand-500"
+                    n.is_read ? "bg-neutral-600" : "bg-white"
                   )}
                 />
                 <span className="min-w-0 flex-1">
@@ -188,18 +188,18 @@ export default function NotificationBell() {
                     className={cn(
                       "block text-sm leading-snug",
                       n.is_read
-                        ? "font-medium text-ink-soft"
-                        : "font-semibold text-ink"
+                        ? "font-medium text-neutral-400"
+                        : "font-semibold text-white"
                     )}
                   >
                     {n.title}
                   </span>
                   {n.body && (
-                    <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-ink-muted">
+                    <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-neutral-400">
                       {n.body}
                     </span>
                   )}
-                  <span className="mt-1 block text-[11px] text-ink-faint">
+                  <span className="mt-1 block text-[11px] text-neutral-500">
                     {formatRelativeTimeID(n.created_at)}
                   </span>
                 </span>
@@ -212,7 +212,7 @@ export default function NotificationBell() {
         <Link
           href={notifListHref}
           onClick={() => setOpen(false)}
-          className="block shrink-0 border-t border-slate-100 px-4 py-3 text-center text-xs font-semibold text-brand-600 hover:bg-slate-50"
+          className="block shrink-0 border-t border-neutral-800 px-4 py-3 text-center text-xs font-semibold text-white hover:bg-neutral-900"
         >
           Lihat semua notifikasi
         </Link>
@@ -246,23 +246,23 @@ export default function NotificationBell() {
         <>
           {/* Mobile: bottom sheet */}
           <div
-            className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-900/40 lg:hidden"
+            className="fixed inset-0 z-50 flex flex-col justify-end bg-black/70 lg:hidden"
             onClick={() => setOpen(false)}
           >
             <div
-              className="w-full overflow-hidden rounded-t-2xl border-t border-slate-200 bg-white shadow-2xl flex flex-col max-h-[80vh]"
+              className="w-full overflow-hidden rounded-t-2xl border-t border-neutral-800 bg-[#111] shadow-2xl flex flex-col max-h-[80vh]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Drag handle */}
               <div className="flex justify-center py-2 shrink-0">
-                <div className="h-1 w-10 rounded-full bg-slate-200" />
+                <div className="h-1 w-10 rounded-full bg-neutral-700" />
               </div>
               {renderDropdown()}
             </div>
           </div>
 
           {/* Desktop: dropdown di kanan bel */}
-          <div className="absolute right-0 top-11 z-50 hidden w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl lg:block">
+          <div className="absolute right-0 top-11 z-50 hidden w-80 overflow-hidden rounded-2xl border border-neutral-800 bg-[#111] shadow-xl lg:block">
             {renderDropdown()}
           </div>
         </>

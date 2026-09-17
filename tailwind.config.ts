@@ -9,19 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand palette — clean, modern, white-dominant
+        // Brand palette — pink, clean, white-dominant
         brand: {
-          50: "#eef6ff",
-          100: "#d9ebff",
-          200: "#bcdcff",
-          300: "#8ec6ff",
-          400: "#59a6ff",
-          500: "#3186f7",
-          600: "#1d66e8",
-          700: "#1850cc",
-          800: "#1a44a2",
-          900: "#1c3c82",
-          950: "#152554",
+          50: "#fdf2f8",
+          100: "#fce7f3",
+          200: "#fbcfe8",
+          300: "#f9a8d4",
+          400: "#f472b6",
+          500: "#ec4899",
+          600: "#db2777",
+          700: "#be185d",
+          800: "#9d174d",
+          900: "#831843",
+          950: "#500724",
         },
         accent: {
           50: "#ecfdf5",
