@@ -35,44 +35,48 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10 sm:py-12">
-      <div className="w-full max-w-5xl">
-        <div className="card overflow-hidden shadow-card">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10 sm:py-12 relative overflow-hidden bg-transparent">
+      {/* Ambient background lighting */}
+      <div className="absolute top-1/3 -left-20 w-80 h-80 bg-pink-500/15 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-sky-500/15 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-5xl relative z-10">
+        <div className="glass-card overflow-hidden shadow-2xl border border-white/80 dark:border-white/10">
           <div className="grid md:grid-cols-2">
             {/* Left: benefits */}
-            <div className="relative hidden flex-col justify-between bg-brand-600 p-8 text-white md:flex">
+            <div className="relative hidden flex-col justify-between bg-gradient-to-br from-pink-600 via-rose-500 to-pink-700 p-8 text-white md:flex">
               <div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/15">
-                  <ShieldCheck className="h-6 w-6" strokeWidth={2.5} />
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-inner">
+                  <ShieldCheck className="h-7 w-7" strokeWidth={2.5} />
                 </div>
-                <h2 className="mt-5 text-2xl font-extrabold leading-tight">
+                <h2 className="mt-6 text-2xl font-black leading-tight">
                   Bergabung sebagai warga aktif
                 </h2>
-                <p className="mt-2 text-sm text-brand-100">
+                <p className="mt-2.5 text-sm text-pink-100 leading-relaxed">
                   SIPMA Kabupaten Bojonegoro memberi kamu kendali penuh atas setiap
                   pengaduan yang kamu ajukan.
                 </p>
 
                 <ul className="mt-6 space-y-3">
                   {benefits.map((b) => (
-                    <li key={b} className="flex items-start gap-2.5 text-sm">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
-                        <Check className="h-3 w-3" />
+                    <li key={b} className="flex items-start gap-2.5 text-sm font-medium">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/25">
+                        <Check className="h-3 w-3 text-white" />
                       </span>
                       {b}
                     </li>
                   ))}
                 </ul>
               </div>
-              <p className="mt-8 text-xs text-brand-100">
+              <p className="mt-8 text-xs text-pink-200 font-medium">
                 © {new Date().getFullYear()} Kabupaten Bojonegoro
               </p>
             </div>
 
             {/* Right: form */}
-            <div className="p-6 sm:p-8">
-              <h1 className="text-2xl font-extrabold text-ink">Daftar Akun</h1>
-              <p className="mt-1 text-sm text-ink-muted">
+            <div className="p-6 sm:p-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl">
+              <h1 className="text-2xl font-black text-ink">Daftar Akun</h1>
+              <p className="mt-1.5 text-sm text-ink-muted">
                 Buat akun masyarakat untuk mulai mengajukan aduan.
               </p>
 

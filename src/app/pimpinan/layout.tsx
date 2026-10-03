@@ -27,12 +27,12 @@ export default async function PimpinanLayout({
   // (if profile.role === "admin" -> diperbolehkan masuk)
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-transparent relative">
       <PimpinanHeader
         fullName={profile.full_name || "Pimpinan"}
         email={user?.email || ""}
       />
-      {children}
+      <div className="flex-1">{children}</div>
       <Footer />
     </div>
   );

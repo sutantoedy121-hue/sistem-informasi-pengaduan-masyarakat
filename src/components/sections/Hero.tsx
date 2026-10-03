@@ -55,8 +55,8 @@ export default function Hero() {
 
       <div className="container-page relative px-4 py-16 sm:px-6 md:py-24">
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <span className="inline-flex items-center rounded-full border border-sky-200/80 bg-white/80 px-4 py-1.5 text-xs font-bold text-sky-900 shadow-sm backdrop-blur-md animate-fade-up">
-            Layanan Pengaduan Digital Kabupaten Bojonegoro
+          <span className="glass-pill text-xs font-bold text-pink-700 dark:text-pink-300 animate-fade-up">
+            ✨ Layanan Pengaduan Digital Kabupaten Bojonegoro
           </span>
 
           <TypewriterHeadline />
@@ -69,25 +69,25 @@ export default function Hero() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <AuthAwareCTA />
-            <Link href="/#lacak" className="btn-secondary w-full sm:w-auto shadow-sm backdrop-blur-xs bg-white/90 dark:bg-neutral-900 dark:border-neutral-800 dark:text-white">
+            <Link href="/#lacak" className="btn-secondary w-full sm:w-auto shadow-sm">
               <Ticket className="h-4 w-4" />
               Lacak Tiket
             </Link>
           </div>
 
           {/* Trust indicators */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm font-medium text-slate-700 dark:text-neutral-300">
-            <div className="flex items-center gap-2 rounded-full bg-white/80 dark:bg-neutral-900/80 px-3.5 py-1.5 backdrop-blur-xs border border-white/80 dark:border-neutral-800 shadow-2xs">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 text-sm font-medium text-slate-700 dark:text-neutral-300">
+            <div className="glass-pill text-xs font-medium">
               <ShieldCheck className="h-4 w-4 text-emerald-500" />
-              Terverifikasi resmi pemda
+              <span>100% Terbuka & Diverifikasi</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/80 dark:bg-neutral-900/80 px-3.5 py-1.5 backdrop-blur-xs border border-white/80 dark:border-neutral-800 shadow-2xs">
+            <div className="glass-pill text-xs font-medium">
+              <span className="h-2 w-2 rounded-full bg-pink-500 animate-pulse" />
+              <span>Respon Petugas Lapangan Cepat</span>
+            </div>
+            <div className="glass-pill text-xs font-medium">
               <Ticket className="h-4 w-4 text-brand-500" />
-              Nomor tiket otomatis
-            </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/80 dark:bg-neutral-900/80 px-3.5 py-1.5 backdrop-blur-xs border border-white/80 dark:border-neutral-800 shadow-2xs">
-              <span className="inline-block h-2 w-2 animate-pulse-soft rounded-full bg-emerald-500" />
-              Notifikasi real-time
+              <span>Nomor Tiket Otomatis</span>
             </div>
           </div>
         </div>

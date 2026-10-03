@@ -26,12 +26,12 @@ export default async function AdminLayout({
   if (profile.role === "pimpinan") redirect("/pimpinan");
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-transparent relative">
       <AdminHeader
         fullName={profile.full_name || "Admin"}
         email={user?.email || ""}
       />
-      {children}
+      <div className="flex-1">{children}</div>
       <Footer />
     </div>
   );

@@ -54,7 +54,7 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg">
+    <header className="sticky top-0 z-40 border-b border-white/60 dark:border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-2xs">
       <div className="container-page flex h-16 items-center justify-between gap-3">
         {/* Brand */}
         <PanelBrand roleLabel="Masyarakat" />
@@ -68,9 +68,9 @@ export default function MasyarakatHeader({ fullName, email }: Props) {
           </Link>
           <Link
             href="/masyarakat/profil"
-            className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition-colors hover:border-brand-200 hover:bg-brand-50/40"
+            className="flex items-center gap-2 rounded-full border border-white/80 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 py-1 pl-1 pr-3 transition-colors hover:border-pink-300 hover:bg-white"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300">
               <UserCircle className="h-5 w-5" />
             </div>
             <div className="flex min-w-0 flex-col leading-tight">

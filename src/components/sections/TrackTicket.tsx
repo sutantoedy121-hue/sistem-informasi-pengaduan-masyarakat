@@ -39,70 +39,77 @@ export default function TrackTicket() {
   }
 
   return (
-    <section id="lacak" className="relative overflow-hidden bg-white">
-      <div className="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]" />
+    <section id="lacak" className="relative overflow-hidden bg-transparent">
       <div className="container-page relative py-14 md:py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="card overflow-hidden shadow-card">
+        <div className="mx-auto max-w-4xl">
+          <div className="glass-card overflow-hidden shadow-xl">
             <div className="grid gap-0 md:grid-cols-5">
               {/* Left: copy */}
-              <div className="md:col-span-2 bg-brand-600 px-6 py-7 text-white md:p-8">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-                  <Ticket className="h-5 w-5" />
+              <div className="md:col-span-2 bg-gradient-to-br from-pink-600 via-rose-500 to-pink-700 px-6 py-8 text-white md:p-10 flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+                <div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 shadow-inner">
+                    <Ticket className="h-6 w-6 text-white" />
+                  </div>
+                  <h2 className="mt-5 text-2xl font-black leading-tight md:text-3xl">
+                    Lacak status aduanmu
+                  </h2>
+                  <p className="mt-2.5 text-sm text-pink-100 leading-relaxed">
+                    Masukkan nomor tiket yang kamu terima saat mengajukan aduan
+                    untuk melihat progres penanganan secara real-time.
+                  </p>
                 </div>
-                <h2 className="mt-4 text-2xl font-extrabold leading-tight md:mt-5">
-                  Lacak status aduanmu
-                </h2>
-                <p className="mt-2 text-sm text-brand-100">
-                  Masukkan nomor tiket yang kamu terima saat mengajukan aduan
-                  untuk melihat progres penanganan secara real-time.
-                </p>
                 <Link
                   href="/register"
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-white hover:gap-2.5 transition-all md:mt-6"
+                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/15 hover:bg-white/25 rounded-full px-4 py-2 backdrop-blur-md transition-all w-fit border border-white/20"
                 >
                   Belum punya tiket? Buat aduan
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
 
               {/* Right: form */}
-              <div className="px-6 py-7 md:col-span-3 md:p-8">
+              <div className="px-6 py-8 md:col-span-3 md:p-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl">
                 <form onSubmit={handleSubmit} className="space-y-4">
-                <label htmlFor="ticket" className="block text-sm font-medium text-ink">
-                  Nomor Tiket
-                </label>
-                <div className="relative">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
-                  <input
-                    id="ticket"
-                    type="text"
-                    value={ticket}
-                    onChange={(e) => {
-                      setTicket(e.target.value);
-                      setResult(null);
-                    }}
-                    placeholder="Contoh: SIPMA-2026-09-0142"
-                    className="input-field pl-10 font-mono"
-                  />
-                </div>
-
-                <button type="submit" disabled={pending} className="btn-primary w-full">
-                  {pending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                  {pending ? "Mencari..." : "Lacak Aduan"}
-                </button>
+                  <label htmlFor="ticket" className="block text-sm font-bold text-ink">
+                    Nomor Tiket Aduan
+                  </label>
+                  <div className="relative">
+                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
+                    <input
+                      id="ticket"
+                      type="text"
+                      value={ticket}
+                      onChange={(e) => setTicket(e.target.value)}
+                      placeholder="Contoh: ADU-2026-001"
+                      className="glass-input pl-11"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={pending}
+                    className="btn-primary w-full"
+                  >
+                    {pending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Mencari Tiket...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4" />
+                        Cek Status Pengaduan
+                      </>
+                    )}
+                  </button>
                 </form>
 
                 {/* Result */}
                 {result?.ok && (
-                  <div className="mt-5 animate-fade-in rounded-xl border border-accent-200 bg-accent-50 p-4">
+                  <div className="mt-5 animate-fade-in rounded-2xl border border-emerald-200/80 bg-emerald-50/80 dark:bg-emerald-950/40 p-5 backdrop-blur-md">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-accent-600" />
-                      <p className="text-sm font-semibold text-accent-700">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
                         Tiket ditemukan
                       </p>
                     </div>
@@ -150,7 +157,7 @@ export default function TrackTicket() {
                 )}
 
                 {result && !result.ok && (
-                  <div className="mt-5 animate-fade-in flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                  <div className="mt-5 animate-fade-in flex items-center gap-2 rounded-2xl border border-rose-200/80 bg-rose-50/80 dark:bg-rose-950/40 p-4 text-sm text-rose-700 dark:text-rose-300 backdrop-blur-md">
                     <AlertCircle className="h-5 w-5 shrink-0" />
                     {result.error}
                   </div>

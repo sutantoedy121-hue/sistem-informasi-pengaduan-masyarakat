@@ -12,7 +12,7 @@ export default async function Categories() {
   const base = user ? "/masyarakat/baru" : "/register";
 
   return (
-    <section id="kategori" className="bg-white">
+    <section id="kategori" className="relative bg-transparent">
       <div className="container-page py-14 md:py-20">
         <Reveal className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <span className="section-eyebrow">Kategori Aduan</span>
@@ -36,19 +36,22 @@ export default async function Categories() {
             <Reveal key={cat.id} delay={i * 60} className="h-full">
               <Link
                 href={`${base}?kategori=${cat.slug}`}
-                className="card-hover group flex h-full min-w-0 flex-col p-5 sm:p-6"
+                className="glass-card-hover group flex h-full min-w-0 flex-col p-6 sm:p-7"
               >
                 <div className="flex items-start justify-between">
                   <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${cat.color}`}
+                    className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-white/80 shadow-2xs ${cat.color}`}
                   >
                     <Icon name={cat.icon} className="h-6 w-6" />
                   </div>
+                  <span className="glass-pill text-[11px] font-semibold text-ink-muted opacity-80 group-hover:opacity-100">
+                    SOP Terpadu
+                  </span>
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-ink group-hover:text-brand-700">
+                <h3 className="mt-5 text-lg font-bold text-ink group-hover:text-brand-600 transition-colors">
                   {cat.name}
                 </h3>
-                <p className="mt-1 text-sm text-ink-muted">{cat.description}</p>
+                <p className="mt-1.5 text-sm text-ink-muted leading-relaxed">{cat.description}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 opacity-0 transition-all group-hover:opacity-100">
                   Ajukan kategori ini
                   <ArrowRight className="h-3.5 w-3.5" />

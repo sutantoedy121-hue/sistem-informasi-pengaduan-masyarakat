@@ -31,12 +31,12 @@ export default async function MasyarakatLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-transparent relative">
       <MasyarakatHeader
         fullName={profile.full_name || "Warga"}
         email={user?.email || ""}
       />
-      {children}
+      <div className="flex-1">{children}</div>
       <Footer />
     </div>
   );

@@ -58,7 +58,7 @@ export default function PublicStatsSection() {
   }, [channelId]);
 
   return (
-    <section id="statistik" className="border-y border-slate-100 bg-slate-50/50">
+    <section id="statistik" className="border-y border-white/60 dark:border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
       <div className="container-page py-14 md:py-16">
         <Reveal className="mx-auto max-w-2xl text-center">
           <span className="section-eyebrow">Transparansi Publik</span>
@@ -73,27 +73,36 @@ export default function PublicStatsSection() {
 
         <div className="mt-10 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:gap-5">
           {stats === null
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="card-hover flex min-h-[150px] animate-pulse flex-col justify-between p-5 sm:p-6">
-                  <div className="h-10 w-10 rounded-xl bg-slate-200" />
+            ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="glass-card flex min-h-[150px] animate-pulse flex-col justify-between p-5 sm:p-6">
+                  <div className="h-10 w-10 rounded-2xl bg-slate-200/60 dark:bg-slate-700/60" />
                   <div className="mt-4 space-y-2">
-                    <div className="h-7 w-20 rounded bg-slate-200" />
-                    <div className="h-3 w-24 rounded bg-slate-100" />
+                    <div className="h-7 w-20 rounded bg-slate-200/60 dark:bg-slate-700/60" />
+                    <div className="h-4 w-32 rounded bg-slate-100/60 dark:bg-slate-800/60" />
                   </div>
                 </div>
               ))
             : TILES.map((t, i) => (
-                <Reveal key={t.label} delay={i * 80} className="h-full">
-                  <div className="card-hover group flex h-full min-w-0 flex-col justify-between p-5 sm:p-6">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white sm:h-11 sm:w-11">
-                      <Icon name={t.icon} className="h-5 w-5" />
+                <Reveal key={t.label} delay={i * 60} className="h-full">
+                  <div className="glass-card-hover group flex h-full flex-col justify-between p-5 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-pink-500/10 to-sky-500/10 border border-white/80 dark:border-white/10 text-brand-600 shadow-2xs">
+                        <Icon name={t.icon} className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-semibold text-ink-faint">
+                        Live
+                      </span>
                     </div>
-                    <div className="mt-4 sm:mt-5">
-                      <p className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+                    <div className="mt-5">
+                      <p className="text-2xl font-black tracking-tight text-ink sm:text-3xl">
                         {t.value(stats)}
                       </p>
-                      <p className="mt-1 text-sm font-medium text-ink">{t.label}</p>
-                      <p className="mt-0.5 text-xs text-ink-muted">{t.sub(stats)}</p>
+                      <p className="mt-1 text-xs font-medium text-ink-muted">
+                        {t.sub(stats)}
+                      </p>
+                      <p className="mt-2 text-sm font-semibold text-ink-soft">
+                        {t.label}
+                      </p>
                     </div>
                   </div>
                 </Reveal>

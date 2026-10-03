@@ -81,7 +81,7 @@ export default function AdminHeader({ fullName, email }: Props) {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-lg">
+    <header className="sticky top-0 z-40 border-b border-white/60 dark:border-white/10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-2xs">
       <div className="container-page flex h-16 items-center justify-between gap-3">
         {/* Brand */}
         <PanelBrand roleLabel="Admin" />
@@ -89,17 +89,17 @@ export default function AdminHeader({ fullName, email }: Props) {
         {/* Desktop actions: Role Switching & Account */}
         <div className="hidden items-center gap-2 md:flex">
           {/* Role Impersonation Switcher (Pintas Intip Petugas & Pimpinan) */}
-          <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 p-1 text-xs">
+          <div className="flex items-center rounded-full border border-white/80 dark:border-white/10 bg-white/50 dark:bg-slate-800/50 p-1 text-xs backdrop-blur-md">
             <span className="px-2 text-[10px] font-bold uppercase text-ink-muted">Lihat Panel:</span>
             <Link
               href="/petugas"
-              className="rounded-lg px-2.5 py-1 font-semibold text-slate-700 hover:bg-white hover:text-brand-700 hover:shadow-xs"
+              className="rounded-full px-2.5 py-1 font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-brand-700 hover:shadow-2xs transition-all"
             >
               Petugas
             </Link>
             <Link
               href="/pimpinan"
-              className="rounded-lg px-2.5 py-1 font-semibold text-slate-700 hover:bg-white hover:text-brand-700 hover:shadow-xs"
+              className="rounded-full px-2.5 py-1 font-semibold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 hover:text-brand-700 hover:shadow-2xs transition-all"
             >
               Pimpinan
             </Link>
@@ -109,9 +109,9 @@ export default function AdminHeader({ fullName, email }: Props) {
 
           <Link
             href="/admin/profil"
-            className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition-colors hover:border-brand-200 hover:bg-brand-50/40"
+            className="flex items-center gap-2 rounded-full border border-white/80 dark:border-white/10 bg-white/60 dark:bg-slate-800/60 py-1 pl-1 pr-3 transition-colors hover:border-pink-300 hover:bg-white"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300">
               <UserCircle className="h-5 w-5" />
             </div>
             <div className="flex min-w-0 flex-col leading-tight">

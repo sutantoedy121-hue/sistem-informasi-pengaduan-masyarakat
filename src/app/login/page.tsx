@@ -32,15 +32,19 @@ export default function LoginPage({ searchParams }: { searchParams: { redirect?:
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10 sm:py-12">
-      <div className="w-full max-w-md">
-        <div className="card p-8 shadow-card">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10 sm:py-12 relative overflow-hidden bg-transparent">
+      {/* Decorative ambient orbs */}
+      <div className="absolute top-1/4 -left-20 w-80 h-80 bg-pink-500/15 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-sky-500/15 rounded-full blur-[100px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
+        <div className="glass-card p-8 sm:p-10 shadow-2xl border border-white/80 dark:border-white/10">
           <div className="flex flex-col items-center text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white">
-              <ShieldCheck className="h-6 w-6" strokeWidth={2.5} />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-pink-600 to-rose-400 text-white shadow-md border border-white/40">
+              <ShieldCheck className="h-7 w-7" strokeWidth={2.5} />
             </div>
-            <h1 className="mt-4 text-2xl font-extrabold text-ink">Masuk ke SIPMA</h1>
-            <p className="mt-1 text-sm text-ink-muted">
+            <h1 className="mt-5 text-2xl font-black text-ink sm:text-3xl">Masuk ke SIPMA</h1>
+            <p className="mt-1.5 text-sm text-ink-muted">
               Selamat datang kembali. Silakan masuk untuk melanjutkan.
             </p>
           </div>

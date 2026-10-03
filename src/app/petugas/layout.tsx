@@ -27,12 +27,12 @@ export default async function PetugasLayout({
   // (if profile.role === "admin" -> diperbolehkan masuk)
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-transparent relative">
       <PetugasHeader
         fullName={profile.full_name || "Petugas"}
         email={user?.email || ""}
       />
-      {children}
+      <div className="flex-1">{children}</div>
       <Footer />
     </div>
   );

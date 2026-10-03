@@ -68,7 +68,7 @@ export default function PublicRecentSection() {
   }, [channelId]);
 
   return (
-    <section id="aduan-terbaru" className="bg-white">
+    <section id="aduan-terbaru" className="relative bg-transparent">
       <div className="container-page py-14 md:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <span className="section-eyebrow">Aduan Terbaru</span>
@@ -76,81 +76,59 @@ export default function PublicRecentSection() {
             Transparansi pengaduan warga
           </h2>
           <p className="mt-3 text-base text-ink-muted">
-            Lihat sebagian aduan terkini yang masuk dan progresnya. Menyegarkan sendiri.
+            Lihat sebagian aduan terkini yang masuk dan progresnya. Menyegarkan sendiri secara realtime.
           </p>
         </Reveal>
 
-        <Reveal
-          className="mt-10 overflow-hidden rounded-2xl border border-slate-200 shadow-soft md:mt-12"
-          delay={80}
-        >
-          <div className="hidden grid-cols-12 gap-4 border-b border-slate-200 bg-slate-50/80 px-6 py-3.5 text-xs font-semibold uppercase tracking-wide text-ink-muted md:grid">
-            <div className="col-span-5">Aduan</div>
-            <div className="col-span-3">Kategori</div>
-            <div className="col-span-2">Lokasi</div>
-            <div className="col-span-2">Status</div>
-          </div>
-
-          {items === null ? (
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-ink-muted">
-              <RefreshCcw className="h-4 w-4 animate-spin" />
-              Memuat aduan terbaru…
-            </div>
-          ) : items.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
-              <OctagonAlert className="h-8 w-8 text-ink-faint" />
-              <p className="text-sm font-medium text-ink">Belum ada aduan</p>
-              <p className="text-xs text-ink-muted">Aduan warga akan muncul di sini.</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-100">
-              {items.map((c) => {
-                const meta = statusMeta[c.status] ?? statusMeta.diajukan;
-                return (
-                  <div
-                    key={c.id}
-                    className="group flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-brand-50/40 sm:px-6 md:grid md:grid-cols-12 md:gap-4"
-                  >
-                    <div className="md:col-span-5">
-                      <p className="font-semibold text-ink group-hover:text-brand-700">
-                        {c.title}
-                      </p>
-                      <p className="mt-0.5 text-xs text-ink-faint">
-                        {formatRelativeTimeID(c.created_at)}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 md:hidden">
-                      <span className="badge bg-brand-50 text-brand-700">
-                        {categoryLabel(firstCategory(c.category), c.category_note)}
-                      </span>
-                      {c.location && (
-                        <span className="inline-flex items-center gap-1 text-xs text-ink-muted">
-                          <MapPin className="h-3.5 w-3.5 text-ink-faint" />
-                          {c.location}
-                        </span>
-                      )}
-                    </div>
-                    <div className="col-span-3 hidden items-center md:flex">
-                      <span className="badge bg-brand-50 text-brand-700">
-                        {categoryLabel(firstCategory(c.category), c.category_note)}
-                      </span>
-                    </div>
-                    <div className="col-span-2 hidden items-center text-sm text-ink-muted md:flex">
-                      <MapPin className="mr-1.5 h-3.5 w-3.5 text-ink-faint" />
-                      {c.location || "-"}
-                    </div>
-                    <div className="col-span-2 flex items-center md:flex">
-                      <span className={`badge ${meta.badge}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
-                        {meta.label}
-                      </span>
-                    </div>
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mt-12 lg:gap-6">
+          {items === null
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="glass-card flex min-h-[140px] animate-pulse flex-col justify-between p-6">
+                  <div className="h-6 w-24 rounded-full bg-slate-200/60 dark:bg-slate-700/60" />
+                  <div className="space-y-2">
+                    <div className="h-5 w-3/4 rounded bg-slate-200/60 dark:bg-slate-700/60" />
+                    <div className="h-4 w-1/2 rounded bg-slate-100/60 dark:bg-slate-800/60" />
                   </div>
+                </div>
+              ))
+            : items.map((item, i) => {
+                const meta = statusMeta[item.status];
+                const cat = firstCategory(item.category);
+                return (
+                  <Reveal key={item.id} delay={i * 60} className="h-full">
+                    <div className="glass-card-hover group flex h-full flex-col justify-between p-6 sm:p-7">
+                      <div>
+                        <div className="flex items-center justify-between gap-2">
+                          <span
+                            className={`badge border border-white/50 ${meta?.badge ?? "bg-slate-100 text-slate-700"}`}
+                          >
+                            {meta?.label ?? item.status}
+                          </span>
+                          <span className="text-xs font-medium text-ink-faint">
+                            {formatRelativeTimeID(item.created_at)}
+                          </span>
+                        </div>
+                        <h3 className="mt-4 text-base font-bold text-ink group-hover:text-brand-600 transition-colors">
+                          {item.title}
+                        </h3>
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 pt-4 border-t border-white/60 dark:border-white/10 text-xs text-ink-muted">
+                        <span className="font-semibold text-brand-700 dark:text-brand-300">
+                          {categoryLabel(cat, item.category_note)}
+                        </span>
+                        {item.location && (
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5 text-pink-500" />
+                            {item.location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Reveal>
                 );
               })}
-            </div>
-          )}
-        </Reveal>
+        </div>
       </div>
     </section>
   );
