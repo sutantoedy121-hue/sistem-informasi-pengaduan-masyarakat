@@ -5,15 +5,18 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
+  Inbox,
   Palette,
   ScrollText,
   Settings,
   LogOut,
   UserCircle,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import PanelBrand from "@/components/layout/PanelBrand";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 
 const primaryTabs = [
   {
@@ -21,6 +24,12 @@ const primaryTabs = [
     label: "Ringkasan",
     icon: LayoutDashboard,
     isActive: (p: string) => p === "/admin",
+  },
+  {
+    href: "/admin/aduan",
+    label: "Semua Aduan",
+    icon: Inbox,
+    isActive: (p: string) => p.startsWith("/admin/aduan"),
   },
   {
     href: "/admin/users",
@@ -36,7 +45,7 @@ const primaryTabs = [
   },
   {
     href: "/admin/login-logs",
-    label: "Riwayat Login",
+    label: "Keamanan & Log",
     icon: ScrollText,
     isActive: (p: string) => p.startsWith("/admin/login-logs"),
   },
@@ -77,8 +86,27 @@ export default function AdminHeader({ fullName, email }: Props) {
         {/* Brand */}
         <PanelBrand roleLabel="Admin" />
 
-        {/* Desktop actions */}
+        {/* Desktop actions: Role Switching & Account */}
         <div className="hidden items-center gap-2 md:flex">
+          {/* Role Impersonation Switcher (Pintas Intip Petugas & Pimpinan) */}
+          <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50/80 p-1 text-xs">
+            <span className="px-2 text-[10px] font-bold uppercase text-ink-muted">Lihat Panel:</span>
+            <Link
+              href="/petugas"
+              className="rounded-lg px-2.5 py-1 font-semibold text-slate-700 hover:bg-white hover:text-brand-700 hover:shadow-xs"
+            >
+              Petugas
+            </Link>
+            <Link
+              href="/pimpinan"
+              className="rounded-lg px-2.5 py-1 font-semibold text-slate-700 hover:bg-white hover:text-brand-700 hover:shadow-xs"
+            >
+              Pimpinan
+            </Link>
+          </div>
+
+          <NotificationBell />
+
           <Link
             href="/admin/profil"
             className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition-colors hover:border-brand-200 hover:bg-brand-50/40"
@@ -133,7 +161,7 @@ export default function AdminHeader({ fullName, email }: Props) {
               href={tab.href}
               className={cn(
                 "flex shrink-0 items-center gap-2 border-b-2 px-3.5 py-3 text-sm font-semibold transition-colors",
-                tab.isActive(pathname)
+                tab.isActive(pathname || "")
                   ? "border-brand-600 text-brand-700"
                   : "border-transparent text-ink-muted hover:border-slate-300 hover:text-ink"
               )}

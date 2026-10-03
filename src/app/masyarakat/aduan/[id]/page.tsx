@@ -16,6 +16,7 @@ import {
 import { getPhotoUrl } from "@/lib/storage";
 import { formatDateID, formatDateTimeID, categoryLabel } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import ComplaintTimeline from "@/components/dashboard/ComplaintTimeline";
 import RatingSection from "@/components/dashboard/RatingSection";
 import CopyTicketButton from "@/components/dashboard/CopyTicketButton";
@@ -47,7 +48,6 @@ export default async function DetailAduanPage({ params }: Props) {
   if (complaint.reporter_id !== user?.id) notFound(); // hanya pelapor & staf
 
   const logs = await getComplaintLogs(complaint.id);
-  const photo = getPhotoUrl(complaint.photo_url);
   const canRate =
     complaint.status === "selesai" && complaint.rating == null;
   const step = STATUS_STEP[complaint.status] ?? 0;
@@ -90,15 +90,7 @@ export default async function DetailAduanPage({ params }: Props) {
             {/* Kolom utama */}
             <div className="space-y-6 lg:col-span-2">
               {/* Foto */}
-              {photo && (
-                <a href={photo} target="_blank" rel="noreferrer">
-                  <img
-                    src={photo}
-                    alt="Foto aduan"
-                    className="aspect-video w-full rounded-2xl object-cover shadow-soft ring-1 ring-slate-200"
-                  />
-                </a>
-              )}
+              <PhotoGallery value={complaint.photo_url} alt="Foto aduan" />
 
               {/* Deskripsi */}
               <div className="card p-6">

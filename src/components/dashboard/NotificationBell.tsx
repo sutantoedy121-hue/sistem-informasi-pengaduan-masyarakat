@@ -142,26 +142,35 @@ export default function NotificationBell() {
 
   function renderDropdown() {
     return (
-      <div className="flex flex-col overflow-hidden">
+      <div className="flex flex-col overflow-hidden max-h-[80vh] sm:max-h-[460px]">
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-neutral-800 px-4 py-3">
-          <p className="text-sm font-bold text-white">Notifikasi</p>
+        <div className="flex shrink-0 items-center justify-between border-b border-neutral-800 bg-[#141414] px-4 py-3">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-white">Notifikasi</p>
+            {unread > 0 && (
+              <span className="rounded-full bg-brand-500/20 px-2 py-0.5 text-[10px] font-bold text-brand-300 ring-1 ring-brand-400/30">
+                {unread} baru
+              </span>
+            )}
+          </div>
           <button
             onClick={handleMarkAll}
             disabled={marking || unread === 0}
-            className="flex items-center gap-1 text-xs font-semibold text-neutral-300 hover:text-white disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-neutral-300 transition-colors hover:bg-neutral-800 hover:text-white disabled:opacity-40 disabled:hover:bg-transparent"
           >
             {marking ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
             Tandai dibaca
           </button>
         </div>
 
-        {/* List — hanya bagian ini yang scroll */}
-        <div className="overflow-y-auto overscroll-contain">
+        {/* List — area scroll aktif dengan batas tinggi dan scrollbar rapi */}
+        <div className="flex-1 overflow-y-auto overscroll-contain divide-y divide-neutral-800/60 max-h-[340px]">
           {items.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-neutral-500">
-              Belum ada notifikasi.
-            </p>
+            <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
+              <Bell className="h-8 w-8 text-neutral-600" />
+              <p className="mt-2 text-sm text-neutral-400">Belum ada notifikasi.</p>
+              <p className="mt-0.5 text-xs text-neutral-600">Pemberitahuan perubahan status akan muncul di sini.</p>
+            </div>
           ) : (
             items.map((n) => (
               <Link
@@ -173,14 +182,14 @@ export default function NotificationBell() {
                 }
                 onClick={() => handleItemClick(n)}
                 className={cn(
-                  "flex items-start gap-3 px-4 py-3 transition-colors hover:bg-neutral-900",
-                  !n.is_read && "bg-neutral-900/60"
+                  "flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-neutral-850",
+                  !n.is_read ? "bg-neutral-900/90" : "bg-transparent hover:bg-neutral-900/50"
                 )}
               >
                 <span
                   className={cn(
-                    "mt-[7px] h-2 w-2 shrink-0 rounded-full",
-                    n.is_read ? "bg-neutral-600" : "bg-white"
+                    "mt-1.5 h-2 w-2 shrink-0 rounded-full",
+                    n.is_read ? "bg-neutral-700" : "bg-brand-400 shadow-[0_0_8px_rgba(244,114,182,0.8)]"
                   )}
                 />
                 <span className="min-w-0 flex-1">
@@ -188,18 +197,18 @@ export default function NotificationBell() {
                     className={cn(
                       "block text-sm leading-snug",
                       n.is_read
-                        ? "font-medium text-neutral-400"
-                        : "font-semibold text-white"
+                        ? "font-medium text-neutral-300"
+                        : "font-bold text-white"
                     )}
                   >
                     {n.title}
                   </span>
                   {n.body && (
-                    <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-neutral-400">
+                    <span className="mt-1 line-clamp-2 block text-xs leading-relaxed text-neutral-400">
                       {n.body}
                     </span>
                   )}
-                  <span className="mt-1 block text-[11px] text-neutral-500">
+                  <span className="mt-1.5 block text-[10px] font-medium text-neutral-500">
                     {formatRelativeTimeID(n.created_at)}
                   </span>
                 </span>
@@ -212,9 +221,9 @@ export default function NotificationBell() {
         <Link
           href={notifListHref}
           onClick={() => setOpen(false)}
-          className="block shrink-0 border-t border-neutral-800 px-4 py-3 text-center text-xs font-semibold text-white hover:bg-neutral-900"
+          className="block shrink-0 border-t border-neutral-800 bg-[#141414] px-4 py-2.5 text-center text-xs font-semibold text-neutral-200 transition-colors hover:bg-neutral-800 hover:text-white"
         >
-          Lihat semua notifikasi
+          Lihat semua notifikasi →
         </Link>
       </div>
     );
@@ -261,8 +270,8 @@ export default function NotificationBell() {
             </div>
           </div>
 
-          {/* Desktop: dropdown di kanan bel */}
-          <div className="absolute right-0 top-11 z-50 hidden w-80 overflow-hidden rounded-2xl border border-neutral-800 bg-[#111] shadow-xl lg:block">
+          {/* Desktop: dropdown di kanan bel dengan lebar lebih lega & max-height terkontrol */}
+          <div className="absolute right-0 top-11 z-50 hidden w-96 overflow-hidden rounded-2xl border border-neutral-800 bg-[#111] shadow-2xl lg:block">
             {renderDropdown()}
           </div>
         </>

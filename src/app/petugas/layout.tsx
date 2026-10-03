@@ -23,7 +23,8 @@ export default async function PetugasLayout({
   if (!profile) redirect("/login?redirect=/petugas");
   if (profile.role === "masyarakat") redirect("/masyarakat");
   if (profile.role === "pimpinan") redirect("/pimpinan");
-  if (profile.role === "admin") redirect("/admin");
+  // Super admin diperbolehkan mengakses panel petugas untuk keperluan monitoring & intervensi
+  // (if profile.role === "admin" -> diperbolehkan masuk)
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">

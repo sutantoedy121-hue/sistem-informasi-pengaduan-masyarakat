@@ -108,12 +108,9 @@ export default async function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-6 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-center border-t border-slate-200 pt-6 text-center">
           <p className="text-xs text-ink-faint">
             © {new Date().getFullYear()} Pemerintah Kabupaten Bojonegoro. Semua hak cipta dilindungi.
-          </p>
-          <p className="text-xs text-ink-faint">
-            Dibangun dengan Next.js · React · Tailwind CSS
           </p>
         </div>
       </div>

@@ -72,7 +72,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-sky-200/50 bg-white/75 backdrop-blur-md shadow-xs">
       <nav className="container-page flex h-16 items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">

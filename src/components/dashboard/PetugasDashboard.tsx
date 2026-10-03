@@ -10,7 +10,7 @@ import {
   Bell,
   ClipboardList,
 } from "lucide-react";
-import { getPhotoUrl } from "@/lib/storage";
+import { getPhotoUrls } from "@/lib/storage";
 import { formatRelativeTimeID, categoryLabel, cn } from "@/lib/utils";
 import type { ComplaintStaffListItem } from "@/lib/db-types";
 import StatusBadge from "@/components/ui/StatusBadge";
@@ -64,12 +64,12 @@ export default function PetugasDashboard({
 
   return (
     <div className="container-page py-8">
-      {/* Ringkasan tile — mobile: scroll horizontal agar tiap tile lega; lg: 4 kolom */}
-      <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0">
+      {/* Ringkasan tile — Grid responsif */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
         {tiles.map((t) => (
           <div
             key={t.label}
-            className="card w-[46vw] min-w-[160px] max-w-[210px] shrink-0 snap-start p-4 sm:p-5 lg:w-auto lg:min-w-0 lg:max-w-none"
+            className="card p-4 sm:p-5"
           >
             <div className="flex items-center justify-between">
               <span
@@ -123,7 +123,7 @@ export default function PetugasDashboard({
           ) : (
             <ul className="divide-y divide-slate-100">
               {latest.map((c) => {
-                const thumb = getPhotoUrl(c.photo_url);
+                const thumb = getPhotoUrls(c.photo_url)[0] ?? null;
                 return (
                   <li key={c.id}>
                     <Link

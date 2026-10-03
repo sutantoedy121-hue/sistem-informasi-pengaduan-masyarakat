@@ -5,31 +5,52 @@ import { ImagePlus, X, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface Props {
-  onUploaded: (path: string | null) => void;
+  /** Dipanggil dengan daftar path storage (urut sesuai upload). */
+  onUploaded: (paths: string[]) => void;
+  /** Batas jumlah foto (default 5). */
+  max?: number;
 }
+
+const MAX_SIZE = 5 * 1024 * 1024;
+const SAFE_EXT = ["jpg", "jpeg", "png", "webp", "gif"];
+
+type Item = { path: string; url: string };
 
 /**
  * Drop-zone upload foto ke Supabase Storage (bucket complaint-photos).
- * RLS membatasi path upload ke "<user.id>/...". Hasil upload berupa path
- * storage (mis. "<user.id>/<file>.jpg") yang diteruskan ke parent.
+ * Mendukung banyak foto sekaligus (input multiple). RLS membatasi path
+ * upload ke "<user.id>/...". Hasil = array path storage.
  */
-export default function PhotoUpload({ onUploaded }: Props) {
+export default function PhotoUpload({ onUploaded, max = 5 }: Props) {
+  const [items, setItems] = useState<Item[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFile(file: File | undefined | null) {
-    if (!file) return;
-    // Hanya gambar
-    if (!file.type.startsWith("image/")) {
-      setError("File harus berupa gambar (JPG/PNG/WebP).");
+  function emit(next: Item[]) {
+    setItems(next);
+    onUploaded(next.map((i) => i.path));
+  }
+
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    const files = Array.from(fileList);
+    const room = max - items.length;
+    if (room <= 0) {
+      setError(`Maksimal ${max} foto.`);
       return;
     }
-    // Batas 5 MB
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Ukuran foto maksimal 5 MB.");
-      return;
+    const chosen = files.slice(0, room);
+
+    for (const f of chosen) {
+      if (!f.type.startsWith("image/")) {
+        setError("File harus berupa gambar (JPG/PNG/WebP).");
+        return;
+      }
+      if (f.size > MAX_SIZE) {
+        setError("Ukuran tiap foto maksimal 5 MB.");
+        return;
+      }
     }
 
     setError(null);
@@ -41,61 +62,98 @@ export default function PhotoUpload({ onUploaded }: Props) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Sesi tidak ditemukan. Silakan masuk ulang.");
 
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext)
-        ? ext
-        : "jpg";
-      const fileName = `${Date.now()}-${Math.round(Math.random() * 1e6)}.${safeExt}`;
-      // Prefix path harus UID user (sesuai RLS: storage.foldername(name)[1] = auth.uid())
-      const filePath = `${user.id}/${fileName}`;
+      const uploaded = await Promise.all(
+        chosen.map(async (file) => {
+          const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+          const safeExt = SAFE_EXT.includes(ext) ? ext : "jpg";
+          const fileName = `${Date.now()}-${Math.round(Math.random() * 1e6)}.${safeExt}`;
+          const filePath = `${user.id}/${fileName}`;
 
-      const { error: upErr } = await supabase.storage
-        .from("complaint-photos")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type,
-        });
-      if (upErr) throw upErr;
+          const { error: upErr } = await supabase.storage
+            .from("complaint-photos")
+            .upload(filePath, file, {
+              cacheControl: "3600",
+              upsert: false,
+              contentType: file.type,
+            });
+          if (upErr) throw upErr;
+          return { path: filePath, url: URL.createObjectURL(file) };
+        })
+      );
 
-      // Preview lokal tidak butuh URL publik; cukup object URL.
-      setPreview(URL.createObjectURL(file));
-      onUploaded(filePath);
+      emit([...items, ...uploaded]);
     } catch (e) {
       console.error("Upload gagal:", e);
-      setError(
-        "Foto gagal diunggah. Periksa koneksi lalu coba lagi."
-      );
+      setError("Sebagian foto gagal diunggah. Periksa koneksi lalu coba lagi.");
     } finally {
       setUploading(false);
     }
   }
 
-  function clearPhoto() {
-    setPreview(null);
-    onUploaded(null);
+  function removeAt(idx: number) {
+    emit(items.filter((_, i) => i !== idx));
     if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
-    <div>
-      {preview ? (
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200">
-          <img
-            src={preview}
-            alt="Pratinjau foto aduan"
-            className="h-48 w-full object-cover"
-          />
-          <button
-            type="button"
-            onClick={clearPhoto}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur hover:bg-black/70"
-            aria-label="Hapus foto"
-          >
-            <X className="h-4 w-4" />
-          </button>
+    <div className="space-y-3">
+      {/* Grid Foto yang telah dipilih/diunggah */}
+      {items.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          {items.map((it, i) => (
+            <div
+              key={it.path}
+              className="group relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm"
+            >
+              <img
+                src={it.url}
+                alt={`Foto ${i + 1}`}
+                className="h-full w-full object-cover"
+              />
+              <span className="absolute bottom-1.5 left-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
+                Foto {i + 1}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeAt(i)}
+                className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-rose-600 text-white shadow hover:bg-rose-700"
+                aria-label={`Hapus foto ${i + 1}`}
+                title="Hapus foto ini"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+
+          {/* Tombol Tambah Foto Lagi (model slot card di sebelah foto yang sudah ada) */}
+          {items.length < max && (
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="flex aspect-video flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-brand-300 bg-brand-50/50 p-2 text-center text-brand-700 transition-colors hover:border-brand-400 hover:bg-brand-50 disabled:opacity-60"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-[11px] font-medium">Mengunggah...</span>
+                </>
+              ) : (
+                <>
+                  <ImagePlus className="h-5 w-5" />
+                  <span className="text-xs font-bold">+ Tambah Foto</span>
+                  <span className="text-[10px] text-brand-600">
+                    ({items.length}/{max})
+                  </span>
+                </>
+              )}
+            </button>
+          )}
         </div>
-      ) : (
+      )}
+
+      {/* Tombol Utama ketika belum ada foto sama sekali */}
+      {items.length === 0 && (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
@@ -105,9 +163,7 @@ export default function PhotoUpload({ onUploaded }: Props) {
           {uploading ? (
             <>
               <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
-              <span className="text-sm font-medium text-ink-muted">
-                Mengunggah...
-              </span>
+              <span className="text-sm font-medium text-ink-muted">Mengunggah...</span>
             </>
           ) : (
             <>
@@ -115,10 +171,10 @@ export default function PhotoUpload({ onUploaded }: Props) {
                 <ImagePlus className="h-5 w-5" />
               </span>
               <span className="text-sm font-semibold text-ink">
-                Klik untuk unggah foto
+                Klik untuk unggah foto (bisa lebih dari 1)
               </span>
               <span className="text-xs text-ink-faint">
-                JPG / PNG / WebP · maks. 5 MB
+                Bisa pilih banyak sekaligus atau tambah bertahap · Maks. {max} foto (JPG/PNG/WebP maks. 5 MB)
               </span>
             </>
           )}
@@ -129,16 +185,15 @@ export default function PhotoUpload({ onUploaded }: Props) {
         ref={inputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={(e) => {
-          handleFile(e.target.files?.[0]);
+          handleFiles(e.target.files);
           e.target.value = "";
         }}
       />
 
-      {error && (
-        <p className="mt-2 text-xs font-medium text-rose-600">{error}</p>
-      )}
+      {error && <p className="mt-1 text-xs font-medium text-rose-600">{error}</p>}
     </div>
   );
 }

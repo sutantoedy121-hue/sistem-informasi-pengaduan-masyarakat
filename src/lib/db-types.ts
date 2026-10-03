@@ -68,6 +68,14 @@ export interface Region {
   created_at: string;
 }
 
+export interface BlockedIp {
+  id: string;
+  ip_address: string;
+  reason: string | null;
+  blocked_by: string | null;
+  created_at: string;
+}
+
 export interface Complaint {
   id: string;
   ticket: string;
@@ -159,6 +167,9 @@ export interface SiteSettings {
   contact_address: string | null;
   /** Nama file logo di bucket "site-assets" (atau URL absolut). */
   logo_url: string | null;
+  showcase_enabled: boolean;
+  /** Daftar ID aduan yang dipilih admin untuk tampil di showcase beranda (JSON string array atau null). */
+  showcase_ids?: string | null;
   updated_at: string;
 }
 

@@ -13,15 +13,15 @@ export default function CTA() {
           <div className="absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-brand-400/30 blur-3xl" />
           <div className="absolute inset-0 bg-grid opacity-[0.08]" />
 
-          <div className="relative flex flex-col items-center text-center gap-8 lg:flex-row lg:items-center lg:text-left">
-            <div className="max-w-2xl">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-white lg:mx-0">
+          <div className="relative flex flex-col items-center text-center gap-8">
+            <div className="max-w-2xl text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-white">
                 <Headset className="h-6 w-6" />
               </div>
               <h2 className="mt-5 text-2xl font-extrabold leading-tight text-white sm:text-4xl">
                 Punya keluhan? Sampaikan sekarang.
               </h2>
-              <p className="mt-3 mx-auto max-w-xl text-base text-brand-100 lg:mx-0">
+              <p className="mt-3 mx-auto max-w-xl text-base text-brand-100">
                 Daftar akun SIPMA hanya butuh beberapa menit. Setiap aduan kamu
                 akan tercatat resmi dengan nomor tiket dan dipantau hingga
                 tuntas.
@@ -29,9 +29,9 @@ export default function CTA() {
             </div>
 
             <AuthAwareCTA
-                className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:flex-col"
-                variant="light"
-              />
+              className="flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row"
+              variant="light"
+            />
           </div>
         </Reveal>
       </div>

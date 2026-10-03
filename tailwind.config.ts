@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -50,6 +51,22 @@ const config: Config = {
         "3xl": "1.5rem",
       },
       keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        wave: {
+          "0%, 100%": { transform: "translate3d(0, 0, 0) scaleY(1)" },
+          "50%": { transform: "translate3d(-25%, -8px, 0) scaleY(1.08)" },
+        },
+        "wave-reverse": {
+          "0%, 100%": { transform: "translate3d(-25%, 0, 0) scaleY(1.05)" },
+          "50%": { transform: "translate3d(0, -10px, 0) scaleY(0.95)" },
+        },
+        "float-slow": {
+          "0%, 100%": { transform: "translate3d(0, 0, 0) scale(1)" },
+          "50%": { transform: "translate3d(0, -14px, 0) scale(1.03)" },
+        },
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
@@ -64,6 +81,10 @@ const config: Config = {
         },
       },
       animation: {
+        marquee: "marquee 35s linear infinite",
+        wave: "wave 28s ease-in-out infinite",
+        "wave-slow": "wave-reverse 38s ease-in-out infinite",
+        "float-slow": "float-slow 10s ease-in-out infinite",
         "fade-up": "fade-up 0.5s ease-out forwards",
         "fade-in": "fade-in 0.4s ease-out forwards",
         "pulse-soft": "pulse-soft 2s ease-in-out infinite",

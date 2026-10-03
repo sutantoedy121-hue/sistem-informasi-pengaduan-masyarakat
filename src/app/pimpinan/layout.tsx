@@ -23,7 +23,8 @@ export default async function PimpinanLayout({
   if (!profile) redirect("/login?redirect=/pimpinan");
   if (profile.role === "masyarakat") redirect("/masyarakat");
   if (profile.role === "petugas") redirect("/petugas");
-  if (profile.role === "admin") redirect("/admin");
+  // Super admin diperbolehkan mengakses panel pimpinan untuk melihat laporan & performa
+  // (if profile.role === "admin" -> diperbolehkan masuk)
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">

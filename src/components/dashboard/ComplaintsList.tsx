@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search, MapPin } from "lucide-react";
 import { cn, categoryLabel } from "@/lib/utils";
 import type { ComplaintWithCategory } from "@/lib/db-types";
 import StatusBadge from "@/components/ui/StatusBadge";
+import Pagination from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 10;
 
 type FilterValue = "semua" | "diproses" | "selesai" | "ditolak";
 
@@ -25,14 +28,19 @@ export default function ComplaintsList({ complaints }: { complaints: ComplaintWi
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialFilter =
-    (searchParams.get("filter") as FilterValue | null) || "semua";
+    (searchParams?.get("filter") as FilterValue | null) || "semua";
   const [filter, setFilter] = useState<FilterValue>(initialFilter);
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, q]);
 
   const setFilterValue = useCallback(
     (value: FilterValue) => {
       setFilter(value);
-      const next = new URLSearchParams(searchParams);
+      const next = new URLSearchParams(searchParams ? searchParams.toString() : "");
       if (value === "semua") next.delete("filter");
       else next.set("filter", value);
       router.replace(`/masyarakat/aduan?${next.toString()}`, { scroll: false });
@@ -40,13 +48,14 @@ export default function ComplaintsList({ complaints }: { complaints: ComplaintWi
     [router, searchParams]
   );
 
-  const visible = useMemo(() => {
+  const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     return complaints.filter((c) => {
       const f = filters.find((x) => x.value === filter)!;
       const matchStatus = f.active(c.status);
       if (!matchStatus) return false;
-      if (!query) return true;
+      // Output hasil pencarian hanya aktif jika mengetik minimal 3 huruf
+      if (query.length < 3) return true;
       return (
         c.title.toLowerCase().includes(query) ||
         c.ticket.toLowerCase().includes(query) ||
@@ -54,6 +63,12 @@ export default function ComplaintsList({ complaints }: { complaints: ComplaintWi
       );
     });
   }, [complaints, filter, q]);
+
+  const visible = useMemo(() => {
+    return filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  }, [filtered, page]);
+
+  const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
 
   const counts = useMemo(
     () =>
@@ -88,7 +103,7 @@ export default function ComplaintsList({ complaints }: { complaints: ComplaintWi
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari judul / nomor tiket / lokasi..."
+          placeholder="Cari judul / tiket / lokasi (min. 3 huruf)..."
           className="input-field pl-10"
         />
       </div>
@@ -172,6 +187,9 @@ export default function ComplaintsList({ complaints }: { complaints: ComplaintWi
               </li>
             ))}
           </ul>
+        )}
+        {pageCount > 1 && (
+          <Pagination page={page} pageCount={pageCount} onChange={setPage} />
         )}
       </div>
     </div>

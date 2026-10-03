@@ -24,7 +24,7 @@ interface Props {
 export default function NewComplaintForm({ categories }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const preselectedSlug = searchParams.get("kategori") || "";
+  const preselectedSlug = searchParams?.get("kategori") || "";
   const preselected =
     categories.find((c) => c.slug === preselectedSlug)?.id || "";
 
@@ -37,7 +37,7 @@ export default function NewComplaintForm({ categories }: Props) {
   const [location, setLocation] = useState("");
   const [locationDetail, setLocationDetail] = useState("");
   const [locationCoord, setLocationCoord] = useState<{ lat: number; lng: number } | null>(null);
-  const [photoPath, setPhotoPath] = useState<string | null>(null);
+  const [photoPaths, setPhotoPaths] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -63,7 +63,7 @@ export default function NewComplaintForm({ categories }: Props) {
         locationDetail,
         lat: locationCoord?.lat,
         lng: locationCoord?.lng,
-        photoUrl: photoPath || undefined,
+        photoUrl: photoPaths.length > 0 ? JSON.stringify(photoPaths) : undefined,
       });
       if (result && "error" in result) {
         setError(result.error || "Terjadi kesalahan.");
@@ -270,7 +270,7 @@ export default function NewComplaintForm({ categories }: Props) {
               Foto Bukti <span className="font-normal text-ink-faint">(opsional, disarankan)</span>
             </label>
             <div className="mt-1.5">
-              <PhotoUpload onUploaded={(path) => setPhotoPath(path)} />
+              <PhotoUpload onUploaded={setPhotoPaths} />
             </div>
           </div>
         </div>

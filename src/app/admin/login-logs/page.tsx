@@ -1,15 +1,19 @@
 import AdminLoginLogs from "@/components/dashboard/AdminLoginLogs";
-import { getAdminLoginLogs, getAdminUserList } from "@/lib/queries";
+import { getAdminLoginLogs, getAdminUserList, getBlockedIps } from "@/lib/queries";
 
 export const metadata = {
-  title: "Riwayat Login — Panel Admin",
+  title: "Keamanan & Log — Panel Super Admin",
 };
 
 export default async function AdminLoginLogsPage() {
-  const [logs, users] = await Promise.all([getAdminLoginLogs(), getAdminUserList()]);
+  const [logs, users, blockedIps] = await Promise.all([
+    getAdminLoginLogs(),
+    getAdminUserList(),
+    getBlockedIps(),
+  ]);
   return (
     <main className="flex-1 pb-16">
-      <AdminLoginLogs logs={logs} users={users} />
+      <AdminLoginLogs logs={logs} users={users} blockedIps={blockedIps} />
     </main>
   );
 }

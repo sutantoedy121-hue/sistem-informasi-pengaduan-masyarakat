@@ -18,6 +18,36 @@ export function getPhotoUrl(
 }
 
 /**
+ * Kolom `photo_url` menyimpan satu path (data lama) ATAU array path dalam
+ * bentuk JSON string (data baru, multi-foto). Fungsi ini menormalkan
+ * keduanya menjadi array path (tanpa URL).
+ */
+export function parsePhotoPaths(
+  value: string | null | undefined
+): string[] {
+  if (!value) return [];
+  const trimmed = value.trim();
+  if (trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((p): p is string => typeof p === "string" && p.length > 0);
+      }
+    } catch {
+      /* bukan JSON valid — perlakukan sebagai path tunggal */
+    }
+  }
+  return [trimmed];
+}
+
+/** Semua URL publik dari nilai `photo_url` (mendukung multi-foto). */
+export function getPhotoUrls(value: string | null | undefined): string[] {
+  return parsePhotoPaths(value)
+    .map((p) => getPhotoUrl(p))
+    .filter((u): u is string => Boolean(u));
+}
+
+/**
  * URL publik untuk aset situs (logo). Path relative dianggap nama file di
  * bucket ASSET_BUCKET; URL absolut dipakai apa adanya.
  */

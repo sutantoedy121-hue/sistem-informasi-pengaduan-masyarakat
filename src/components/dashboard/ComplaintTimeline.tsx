@@ -1,7 +1,8 @@
 import { CheckCircle2, Circle, MessageSquare, X } from "lucide-react";
 import { formatRelativeTimeID, cn } from "@/lib/utils";
-import { getPhotoUrl } from "@/lib/storage";
+import { getPhotoUrls } from "@/lib/storage";
 import type { ComplaintLogWithActor } from "@/lib/db-types";
+import PhotoGallery from "@/components/ui/PhotoGallery";
 
 const ACTION_META: Record<string, { label: string; sub?: (l: ComplaintLogWithActor) => string }> = {
   created: { label: "Aduan diajukan" },
@@ -38,7 +39,7 @@ export default function ComplaintTimeline({ logs }: Props) {
         const meta = ACTION_META[log.action];
         if (!meta) return null;
         const actorName = log.actor?.full_name;
-        const photo = getPhotoUrl(log.photo_url);
+        const photo = getPhotoUrls(log.photo_url)[0] ?? null;
         const title = meta.label;
 
         return (
@@ -101,18 +102,13 @@ export default function ComplaintTimeline({ logs }: Props) {
                 </p>
               )}
               {photo && (
-                <a
-                  href={photo}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 inline-block"
-                >
-                  <img
-                    src={photo}
+                <div className="mt-2 max-w-xs">
+                  <PhotoGallery
+                    value={log.photo_url}
                     alt="Dokumentasi penanganan"
-                    className="h-28 w-full max-w-xs rounded-xl object-cover ring-1 ring-slate-200 transition-transform hover:scale-[1.02]"
+                    variant="thumb"
                   />
-                </a>
+                </div>
               )}
             </div>
           </li>

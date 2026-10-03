@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import PageTransition from "@/components/ui/PageTransition";
 
 // Font Nippo dimuat dari Fontshare CDN (gratis, tanpa API key).
 // Family name di CSS Fontshare: "Nippo".
@@ -22,7 +24,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <head>
         <link
           rel="preconnect"
@@ -33,8 +35,29 @@ export default function RootLayout({
           href="https://api.fontshare.com/v2/css?f[]=nippo@400,500,700&display=swap"
           rel="stylesheet"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const saved = localStorage.getItem('sipma-theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (saved === 'dark' || (!saved && prefersDark) || (saved === 'system' && prefersDark)) {
+                  document.documentElement.classList.add('dark');
+                } else {
+                  document.documentElement.classList.remove('dark');
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
       </head>
-      <body className="min-h-screen bg-white">{children}</body>
+      <body className="min-h-screen bg-white text-ink transition-colors duration-200 dark:bg-neutral-950 dark:text-neutral-100">
+        <ThemeProvider>
+          <PageTransition>
+            {children}
+          </PageTransition>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

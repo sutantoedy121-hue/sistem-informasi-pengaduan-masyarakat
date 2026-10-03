@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, FileText, LogOut, Settings, UserCircle } from "lucide-react";
+import { BarChart3, FileText, LogOut, Settings, UserCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import PanelBrand from "@/components/layout/PanelBrand";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 
 const primaryTabs = [
   {
@@ -13,6 +14,12 @@ const primaryTabs = [
     label: "Ringkasan",
     icon: BarChart3,
     isActive: (p: string) => p === "/pimpinan",
+  },
+  {
+    href: "/pimpinan/aduan/overdue",
+    label: "Perlu Atensi",
+    icon: AlertTriangle,
+    isActive: (p: string) => p.startsWith("/pimpinan/aduan/overdue"),
   },
   {
     href: "/pimpinan/laporan",
@@ -52,7 +59,8 @@ export default function PimpinanHeader({ fullName, email }: Props) {
         <PanelBrand roleLabel="Pimpinan" />
 
         {/* Desktop actions */}
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
+          <NotificationBell />
           <Link
             href="/pimpinan/profil"
             className="flex items-center gap-2 rounded-full border border-slate-200 py-1 pl-1 pr-3 transition-colors hover:border-brand-200 hover:bg-brand-50/40"
@@ -107,7 +115,7 @@ export default function PimpinanHeader({ fullName, email }: Props) {
               href={tab.href}
               className={cn(
                 "flex shrink-0 items-center gap-2 border-b-2 px-3.5 py-3 text-sm font-semibold transition-colors",
-                tab.isActive(pathname)
+                tab.isActive(pathname || "")
                   ? "border-brand-600 text-brand-700"
                   : "border-transparent text-ink-muted hover:border-slate-300 hover:text-ink"
               )}

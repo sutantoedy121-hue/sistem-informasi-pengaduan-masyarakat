@@ -5,7 +5,7 @@ import {
   categoryLabel,
   regionLabel,
 } from "@/lib/utils";
-import { getPhotoUrl, getAssetUrl } from "@/lib/storage";
+import { getPhotoUrls, getAssetUrl } from "@/lib/storage";
 import { getSiteSettings } from "@/lib/queries";
 import {
   labelStatus,
@@ -25,7 +25,7 @@ interface Props {
  * Satu-satunya elemen dengan id #report-print di halaman.
  */
 export default async function ReportSection({ complaint: c, logs }: Props) {
-  const photo = getPhotoUrl(c.photo_url);
+  const photo = getPhotoUrls(c.photo_url)[0] ?? null;
   const region = regionLabel(c.region);
   const printedAt = new Date();
   const settings = await getSiteSettings(); // nama situs + logo untuk kop

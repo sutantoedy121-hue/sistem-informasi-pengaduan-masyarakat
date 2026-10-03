@@ -10,6 +10,7 @@ import {
 import { formatDateTimeID } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
 import PimpinanReportButtons from "@/components/dashboard/PimpinanReportButtons";
+import PimpinanLaporanDetail from "@/components/dashboard/PimpinanLaporanDetail";
 
 const BULAN = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -144,39 +145,8 @@ export default async function PimpinanLaporanPage({ searchParams }: Props) {
           </div>
         </div>
 
-        {/* Detail aduan (50 terbaru) */}
-        <div className="card mt-6 overflow-hidden">
-          <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
-            <FileText className="h-4 w-4 text-brand-600" />
-            <h2 className="text-sm font-bold text-ink">Detail Aduan (terbaru)</h2>
-          </div>
-          {detail.length === 0 ? (
-            <p className="px-5 py-8 text-center text-sm text-ink-muted">
-              Tidak ada aduan pada periode ini.
-            </p>
-          ) : (
-            <ul className="divide-y divide-slate-100">
-              {detail.map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={`/pimpinan/aduan/${c.id}`}
-                    className="flex flex-wrap items-center gap-3 px-5 py-4 transition-colors hover:bg-brand-50/40"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-ink">{c.title}</p>
-                      <p className="mt-0.5 text-xs text-ink-muted">
-                        <span className="font-mono">{c.ticket}</span> ·{" "}
-                        {c.category?.name ?? "Tanpa kategori"} ·{" "}
-                        {formatDateTimeID(c.created_at)}
-                      </p>
-                    </div>
-                    <StatusBadge status={c.status} className="shrink-0" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {/* Detail aduan */}
+        <PimpinanLaporanDetail complaints={complaints} />
       </div>
     </main>
   );

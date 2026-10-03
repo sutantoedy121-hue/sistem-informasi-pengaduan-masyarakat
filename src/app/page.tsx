@@ -6,21 +6,32 @@ import TrackTicket from "@/components/sections/TrackTicket";
 import Categories from "@/components/sections/Categories";
 import ProcessFlow from "@/components/sections/ProcessFlow";
 import PublicRecentSection from "@/components/sections/PublicRecentSection";
+import ShowcaseGallery from "@/components/sections/ShowcaseGallery";
 import CTA from "@/components/sections/CTA";
 
 export default async function HomePage() {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="overflow-hidden">
         <Hero />
-        {/* Ringkasan kinerja: live dari DB via realtime */}
+        
+        {/* Ringkasan kinerja */}
         <PublicStatsSection />
+
         <TrackTicket />
+
         <Categories />
+
+        {/* 3D Curved Showcase Carousel */}
+        <ShowcaseGallery />
+
+        {/* Alur Pengaduan */}
         <ProcessFlow />
-        {/* Aduan terbaru (tanpa tiket, live) — ditempatkan lebih bawah */}
+
+        {/* Aduan terbaru (tanpa tiket, live) */}
         <PublicRecentSection />
+
         <CTA />
       </main>
       <Footer />

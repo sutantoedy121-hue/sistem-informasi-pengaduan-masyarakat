@@ -8,6 +8,8 @@ import type {
   ComplaintStaffListItem,
   ComplaintWithCategory,
   Executor,
+  Region,
+  BlockedIp,
   LoginLogRow,
   NotificationRow,
   Profile,
@@ -76,6 +78,37 @@ export async function getActiveCategories(): Promise<Category[]> {
     ...cats.filter((c) => c.slug !== "lainnya"),
     ...cats.filter((c) => c.slug === "lainnya"),
   ];
+}
+
+/** Ambil aduan berstatus selesai yang memiliki foto untuk showcase landing page.
+ * Jika `selectedIds` diberikan, ambil aduan yang sesuai ID tersebut terlebih dahulu. */
+export async function getCompletedComplaintsWithPhotos(
+  limit = 8,
+  selectedIds?: string[] | null
+): Promise<ComplaintWithCategory[]> {
+  const supabase = await createClient();
+
+  if (selectedIds && selectedIds.length > 0) {
+    const { data, error } = await supabase
+      .from("complaints")
+      .select("*, category:categories(*)")
+      .in("id", selectedIds)
+      .not("photo_url", "is", null);
+    if (!error && data && data.length > 0) {
+      return data as ComplaintWithCategory[];
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("complaints")
+    .select("*, category:categories(*)")
+    .eq("status", "selesai")
+    .not("photo_url", "is", null)
+    .order("completed_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+  return data as ComplaintWithCategory[];
 }
 
 /** Semua aduan milik satu pelapor (terbaru dulu), beserta kategori. */
@@ -214,6 +247,28 @@ export async function getAllExecutors(): Promise<Executor[]> {
     .order("name");
   if (error) return [];
   return (data ?? []) as Executor[];
+}
+
+/** Semua data wilayah (Kecamatan/Desa) untuk tabel master admin. */
+export async function getAllRegions(): Promise<Region[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("regions")
+    .select("*")
+    .order("kecamatan", { ascending: true });
+  if (error) return [];
+  return (data ?? []) as Region[];
+}
+
+/** Daftar semua IP yang diblokir oleh Admin (FR-17). */
+export async function getBlockedIps(): Promise<BlockedIp[]> {
+  const admin = await createAdminClient();
+  const { data, error } = await admin
+    .from("blocked_ips")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) return [];
+  return (data ?? []) as BlockedIp[];
 }
 
 /**

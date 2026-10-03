@@ -17,6 +17,7 @@ import {
 import { getPhotoUrl } from "@/lib/storage";
 import { formatDateID, formatDateTimeID, categoryLabel, regionLabel } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import ComplaintTimeline from "@/components/dashboard/ComplaintTimeline";
 import StaffActions from "@/components/dashboard/StaffActions";
 import CopyTicketButton from "@/components/dashboard/CopyTicketButton";
@@ -37,7 +38,6 @@ export default async function PetugasDetailAduanPage({ params }: Props) {
 
   const logs = await getComplaintLogs(complaint.id);
   const executors = await getExecutors();
-  const photo = getPhotoUrl(complaint.photo_url);
 
   return (
     <main className="flex-1 pb-20">
@@ -76,15 +76,7 @@ export default async function PetugasDetailAduanPage({ params }: Props) {
             {/* Kolom utama */}
             <div className="space-y-6 lg:col-span-2">
               {/* Foto */}
-              {photo && (
-                <a href={photo} target="_blank" rel="noreferrer">
-                  <img
-                    src={photo}
-                    alt="Foto aduan"
-                    className="aspect-video w-full rounded-2xl object-cover shadow-soft ring-1 ring-slate-200"
-                  />
-                </a>
-              )}
+              <PhotoGallery value={complaint.photo_url} alt="Foto aduan" />
 
               {/* Deskripsi */}
               <div className="card p-6">

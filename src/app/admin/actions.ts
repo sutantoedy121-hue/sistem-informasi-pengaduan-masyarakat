@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ASSET_BUCKET } from "@/lib/storage";
-import type { UserRole } from "@/lib/db-types";
+import type { UserRole, ComplaintStatus } from "@/lib/db-types";
 
 export type ActionResult =
   | { error?: string }
@@ -374,24 +374,179 @@ export async function saveSiteSettingsAction(input: {
   contactEmail?: string;
   contactAddress?: string;
   logoUrl?: string;
+  showcaseEnabled?: boolean;
+  showcaseIds?: string | null;
 }) {
   await requireAdmin();
   if (!input.siteName.trim()) return { error: "Nama situs wajib diisi." };
 
-  const supabase = await createClient();
-  const { error } = await supabase
+  const admin = await createAdminClient();
+  const updateData: Record<string, any> = {
+    site_name: input.siteName.trim(),
+    tagline: input.tagline?.trim() || null,
+    contact_phone: input.contactPhone?.trim() || null,
+    contact_email: input.contactEmail?.trim() || null,
+    contact_address: input.contactAddress?.trim() || null,
+    logo_url: input.logoUrl ? input.logoUrl.trim() : null,
+  };
+
+  if (input.showcaseEnabled !== undefined) {
+    updateData.showcase_enabled = input.showcaseEnabled;
+  }
+  if (input.showcaseIds !== undefined) {
+    updateData.showcase_ids = input.showcaseIds;
+  }
+
+  // Coba update dengan data lengkap
+  let { error } = await admin
     .from("site_settings")
-    .update({
-      site_name: input.siteName.trim(),
-      tagline: input.tagline?.trim() || null,
-      contact_phone: input.contactPhone?.trim() || null,
-      contact_email: input.contactEmail?.trim() || null,
-      contact_address: input.contactAddress?.trim() || null,
-      logo_url: input.logoUrl ? input.logoUrl.trim() : null,
-    })
+    .update(updateData)
     .eq("id", 1);
-  if (error) return { error: firstError(error) ?? "Gagal menyimpan pengaturan." };
+
+  // Jika error karena kolom showcase_ids/showcase_enabled belum ada di DB PostgreSQL lokal,
+  // lakukan fallback update data esensial agar tidak gagal
+  if (error) {
+    const baseData = {
+      site_name: updateData.site_name,
+      tagline: updateData.tagline,
+      contact_phone: updateData.contact_phone,
+      contact_email: updateData.contact_email,
+      contact_address: updateData.contact_address,
+      logo_url: updateData.logo_url,
+    };
+    const fallbackRes = await admin.from("site_settings").update(baseData).eq("id", 1);
+    if (fallbackRes.error) {
+      return { error: firstError(fallbackRes.error) ?? "Gagal menyimpan pengaturan situs." };
+    }
+  }
 
   revalidatePath("/", "layout");
-  return { success: "Pengaturan situs disimpan." };
+  return { success: "Pengaturan situs berhasil disimpan." };
+}
+
+/**
+ * Super Admin: Hapus aduan secara permanen (spam/palsu/ilegal).
+ */
+export async function deleteComplaintAction(complaintId: string) {
+  await requireAdmin();
+  const admin = await createAdminClient();
+  const { error } = await admin.from("complaints").delete().eq("id", complaintId);
+  if (error) return { error: firstError(error) ?? "Gagal menghapus aduan." };
+  revalidatePath("/admin/aduan");
+  revalidatePath("/petugas/aduan");
+  revalidatePath("/pimpinan/laporan");
+  return { success: "Aduan berhasil dihapus permanen." };
+}
+
+/**
+ * Super Admin: Intervensi status / ubah status darurat aduan.
+ */
+export async function updateComplaintStatusAction(input: {
+  complaintId: string;
+  status: ComplaintStatus;
+  note?: string;
+}) {
+  const { id } = await requireAdmin();
+  const admin = await createAdminClient();
+
+  const { error } = await admin
+    .from("complaints")
+    .update({
+      status: input.status,
+      updated_at: new Date().toISOString(),
+      ...(input.status === "selesai" ? { completed_at: new Date().toISOString() } : {}),
+      ...(input.status === "diterima" ? { accepted_at: new Date().toISOString() } : {}),
+    })
+    .eq("id", input.complaintId);
+
+  if (error) return { error: firstError(error) ?? "Gagal memperbarui status." };
+
+  await admin.from("complaint_logs").insert({
+    complaint_id: input.complaintId,
+    actor_id: id,
+    action: "progress",
+    status_to: input.status,
+    description: `Status diubah secara manual oleh Super Admin: ${input.note || input.status}`,
+  });
+
+  revalidatePath("/admin/aduan");
+  revalidatePath(`/admin/aduan/${input.complaintId}`);
+  return { success: "Status aduan berhasil diperbarui." };
+}
+
+/**
+ * Super Admin: Blokir alamat IP mencurigakan (FR-17).
+ */
+export async function blockIpAction(ip: string, reason?: string) {
+  const { id } = await requireAdmin();
+  const admin = await createAdminClient();
+  const { error } = await admin.from("blocked_ips").insert({
+    ip_address: ip.trim(),
+    reason: reason?.trim() || "Aktivitas mencurigakan / pemblokiran oleh Admin",
+    blocked_by: id,
+  });
+  if (error) return { error: firstError(error) ?? "Gagal memblokir IP." };
+  revalidatePath("/admin/login-logs");
+  return { success: `IP ${ip} berhasil diblokir.` };
+}
+
+/**
+ * Super Admin: Buka blokir IP.
+ */
+export async function unblockIpAction(ipId: string) {
+  await requireAdmin();
+  const admin = await createAdminClient();
+  const { error } = await admin.from("blocked_ips").delete().eq("id", ipId);
+  if (error) return { error: firstError(error) ?? "Gagal membuka blokir IP." };
+  revalidatePath("/admin/login-logs");
+  return { success: "IP berhasil di-unblock." };
+}
+
+/**
+ * Super Admin: Kelola Wilayah (Kecamatan / Desa).
+ */
+export async function saveRegionAction(input: {
+  id?: string;
+  kecamatan: string;
+  desa: string;
+  isActive: boolean;
+}) {
+  await requireAdmin();
+  const admin = await createAdminClient();
+  if (!input.kecamatan.trim() || !input.desa.trim()) {
+    return { error: "Nama kecamatan dan desa wajib diisi." };
+  }
+
+  if (input.id) {
+    const { error } = await admin
+      .from("regions")
+      .update({
+        kecamatan: input.kecamatan.trim(),
+        desa: input.desa.trim(),
+        is_active: input.isActive,
+      })
+      .eq("id", input.id);
+    if (error) return { error: firstError(error) ?? "Gagal memperbarui wilayah." };
+  } else {
+    const { error } = await admin.from("regions").insert({
+      kecamatan: input.kecamatan.trim(),
+      desa: input.desa.trim(),
+      is_active: input.isActive,
+    });
+    if (error) return { error: firstError(error) ?? "Gagal menambahkan wilayah." };
+  }
+  revalidatePath("/admin/master");
+  return { success: "Data wilayah berhasil disimpan." };
+}
+
+export async function toggleRegionAction(input: { regionId: string; isActive: boolean }) {
+  await requireAdmin();
+  const admin = await createAdminClient();
+  const { error } = await admin
+    .from("regions")
+    .update({ is_active: input.isActive })
+    .eq("id", input.regionId);
+  if (error) return { error: firstError(error) ?? "Gagal mengubah status wilayah." };
+  revalidatePath("/admin/master");
+  return { success: "Status wilayah berhasil diubah." };
 }

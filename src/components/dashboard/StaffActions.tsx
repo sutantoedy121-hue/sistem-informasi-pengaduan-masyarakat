@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import {
   ShieldCheck,
   XCircle,
@@ -11,6 +11,7 @@ import {
   Loader2,
   X,
   ClipboardCheck,
+  Search,
 } from "lucide-react";
 import type { ComplaintStatus, Executor } from "@/lib/db-types";
 import PhotoUpload from "@/components/forms/PhotoUpload";
@@ -49,23 +50,32 @@ export default function StaffActions({
   const router = useRouter();
   const [modal, setModal] = useState<ModalState | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [photoPath, setPhotoPath] = useState<string | null>(null);
+  const [photoPaths, setPhotoPaths] = useState<string[]>([]);
   const [executorMode, setExecutorMode] = useState<"list" | "manual">("list");
   const [executorListValue, setExecutorListValue] = useState("");
+  const [executorSearchQuery, setExecutorSearchQuery] = useState("");
   const [pending, startTransition] = useTransition();
 
   const open = (type: Exclude<ModalType, null>) => {
     setError(null);
-    setPhotoPath(null);
+    setPhotoPaths([]);
     setExecutorMode("list");
     setExecutorListValue("");
+    setExecutorSearchQuery("");
     setModal({ type });
   };
   const close = () => {
     if (pending) return;
     setModal(null);
-    setPhotoPath(null);
+    setPhotoPaths([]);
+    setExecutorSearchQuery("");
   };
+
+  const filteredExecutors = useMemo(() => {
+    const q = executorSearchQuery.trim().toLowerCase();
+    if (q.length < 3) return executors;
+    return executors.filter((e) => e.name.toLowerCase().includes(q));
+  }, [executors, executorSearchQuery]);
 
   function submit(formData: FormData) {
     startTransition(async () => {
@@ -99,13 +109,13 @@ export default function StaffActions({
             return progressComplaintAction({
               complaintId,
               description: String(formData.get("description") || ""),
-              photoUrl: photoPath || undefined,
+              photoUrl: photoPaths.length > 0 ? JSON.stringify(photoPaths) : undefined,
             });
           case "complete":
             return completeComplaintAction({
               complaintId,
               note: String(formData.get("note") || ""),
-              photoUrl: photoPath || undefined,
+              photoUrl: photoPaths.length > 0 ? JSON.stringify(photoPaths) : undefined,
             });
           default:
             return { error: "Aksi tidak dikenal." };
@@ -258,7 +268,19 @@ export default function StaffActions({
                     </label>
 
                     {executorMode === "list" ? (
-                      <>
+                      <div className="space-y-2 mt-1.5">
+                        {/* Input Pencarian Pelaksana (Aktif jika ketik min. 3 huruf) */}
+                        <div className="relative">
+                          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-faint" />
+                          <input
+                            type="text"
+                            value={executorSearchQuery}
+                            onChange={(e) => setExecutorSearchQuery(e.target.value)}
+                            placeholder="Cari pelaksana (ketik min. 3 huruf)..."
+                            className="input-field !py-1.5 pl-8 text-xs"
+                          />
+                        </div>
+
                         <select
                           id="executorId"
                           name="executorId"
@@ -268,20 +290,21 @@ export default function StaffActions({
                             setExecutorListValue(v);
                             if (v === "manual") setExecutorMode("manual");
                           }}
-                          className="input-field mt-1.5"
+                          className="input-field text-sm"
+                          required
                         >
-                          <option value="">— Pilih pelaksana —</option>
-                          {executors.map((e) => (
+                          <option value="">— Pilih pelaksana ({filteredExecutors.length} ditemukan) —</option>
+                          {filteredExecutors.map((e) => (
                             <option key={e.id} value={e.id}>
                               {e.name}
                             </option>
                           ))}
                           <option value="manual">Lainnya (ketik manual)</option>
                         </select>
-                        <p className="mt-1 text-xs text-ink-muted">
+                        <p className="text-xs text-ink-muted">
                           Aduan akan berstatus <b>Diproses</b> setelah ditugaskan.
                         </p>
-                      </>
+                      </div>
                     ) : (
                       <div>
                         <input
@@ -346,7 +369,7 @@ export default function StaffActions({
                       Foto Bukti <span className="font-normal text-ink-faint">(opsional)</span>
                     </label>
                     <div className="mt-1.5">
-                      <PhotoUpload onUploaded={setPhotoPath} />
+                      <PhotoUpload onUploaded={setPhotoPaths} />
                     </div>
                   </div>
                 </>
@@ -373,7 +396,7 @@ export default function StaffActions({
                       Foto Bukti <span className="font-normal text-ink-faint">(opsional)</span>
                     </label>
                     <div className="mt-1.5">
-                      <PhotoUpload onUploaded={setPhotoPath} />
+                      <PhotoUpload onUploaded={setPhotoPaths} />
                     </div>
                   </div>
                 </>

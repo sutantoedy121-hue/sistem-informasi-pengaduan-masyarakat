@@ -15,6 +15,7 @@ import {
 import { getPhotoUrl } from "@/lib/storage";
 import { formatDateTimeID, categoryLabel, regionLabel } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
+import PhotoGallery from "@/components/ui/PhotoGallery";
 import ComplaintTimeline from "@/components/dashboard/ComplaintTimeline";
 import CopyTicketButton from "@/components/dashboard/CopyTicketButton";
 import LeaderNote from "@/components/dashboard/LeaderNote";
@@ -33,7 +34,6 @@ export default async function PimpinanDetailAduanPage({ params }: Props) {
   if (!complaint) notFound();
 
   const logs = await getComplaintLogs(complaint.id);
-  const photo = getPhotoUrl(complaint.photo_url);
 
   return (
     <main className="flex-1 pb-20">
@@ -69,15 +69,7 @@ export default async function PimpinanDetailAduanPage({ params }: Props) {
           <div className="mt-6 grid gap-6 lg:grid-cols-3">
             {/* Kolom utama */}
             <div className="space-y-6 lg:col-span-2">
-              {photo && (
-                <a href={photo} target="_blank" rel="noreferrer">
-                  <img
-                    src={photo}
-                    alt="Foto aduan"
-                    className="aspect-video w-full rounded-2xl object-cover shadow-soft ring-1 ring-slate-200"
-                  />
-                </a>
-              )}
+              <PhotoGallery value={complaint.photo_url} alt="Foto aduan" />
 
               <div className="card p-6">
                 <h2 className="flex items-center gap-2 text-sm font-bold text-ink">

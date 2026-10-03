@@ -2,21 +2,22 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
-import { Loader2, CheckCircle2, ImagePlus, X } from "lucide-react";
-import type { SiteSettings } from "@/lib/db-types";
+import { Loader2, CheckCircle2, ImagePlus, X, Check, Image as ImageIcon } from "lucide-react";
+import type { SiteSettings, ComplaintStaffListItem } from "@/lib/db-types";
 import { saveSiteSettingsAction, uploadLogoAction } from "@/app/admin/actions";
-import { getAssetUrl } from "@/lib/storage";
+import { getAssetUrl, getPhotoUrls } from "@/lib/storage";
+import { categoryLabel, formatDateID } from "@/lib/utils";
 
 interface Props {
   settings: SiteSettings | null;
+  availableComplaints?: ComplaintStaffListItem[];
 }
 
 /**
  * Panel admin: pengaturan situs (FR-18) — nama, tagline, kontak (tampil di
- * footer) + logo situs yang dipakai di header & footer. Upload logo lewat
- * server action service-role ke bucket publik "site-assets".
+ * footer) + logo situs yang dipakai di header & footer + seleksi foto showcase landing page.
  */
-export default function AdminSettings({ settings }: Props) {
+export default function AdminSettings({ settings, availableComplaints = [] }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -24,8 +25,30 @@ export default function AdminSettings({ settings }: Props) {
   const [logoPath, setLogoPath] = useState<string | null>(
     settings?.logo_url ?? null
   );
+  const [showcaseEnabled, setShowcaseEnabled] = useState<boolean>(
+    settings?.showcase_enabled ?? true
+  );
+
+  // Parse ID aduan yang dipilih untuk showcase
+  const initialSelectedIds = (() => {
+    if (!settings?.showcase_ids) return [];
+    try {
+      const parsed = JSON.parse(settings.showcase_ids);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  })();
+  const [selectedShowcaseIds, setSelectedShowcaseIds] = useState<string[]>(initialSelectedIds);
+
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function toggleSelectComplaint(id: string) {
+    setSelectedShowcaseIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }
 
   async function handleLogoFile(file: File | undefined | null) {
     if (!file) return;
@@ -75,6 +98,8 @@ export default function AdminSettings({ settings }: Props) {
         contactEmail: String(formData.get("contactEmail") || "") || undefined,
         contactAddress: String(formData.get("contactAddress") || "") || undefined,
         logoUrl: logoPath ?? undefined,
+        showcaseEnabled,
+        showcaseIds: selectedShowcaseIds.length > 0 ? JSON.stringify(selectedShowcaseIds) : null,
       });
       if (result && "error" in result) {
         setError(result.error || "Terjadi kesalahan.");
@@ -247,6 +272,115 @@ export default function AdminSettings({ settings }: Props) {
               defaultValue={settings?.contact_address ?? ""}
               className="input-field mt-1.5 resize-y"
             />
+          </div>
+
+          {/* Toggle Showcase Landing Page */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-bold text-ink">
+                  Showcase Bukti Selesai di Beranda
+                </span>
+                <p className="mt-0.5 text-xs text-ink-muted">
+                  Tampilkan galeri berjalan (running marquee) komparasi foto bukti selesai di landing page.
+                </p>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={showcaseEnabled}
+                  onChange={(e) => setShowcaseEnabled(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <div className="h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-600 peer-checked:after:translate-x-full peer-checked:after:border-white" />
+              </label>
+            </div>
+
+            {/* Pilihan Foto Aduan yang Ditampilkan */}
+            {showcaseEnabled && (
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-brand-700">
+                      Pilih Foto Aduan Petugas untuk Showcase ({selectedShowcaseIds.length} Dipilih)
+                    </h4>
+                    <p className="text-xs text-ink-muted mt-0.5">
+                      Klik pada kartu laporan yang ingin Anda tampilkan di landing page (jika tidak ada yang dipilih, sistem otomatis menampilkan laporan terbaru).
+                    </p>
+                  </div>
+                  {selectedShowcaseIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedShowcaseIds([])}
+                      className="text-xs font-semibold text-rose-600 hover:underline shrink-0"
+                    >
+                      Reset Pilihan
+                    </button>
+                  )}
+                </div>
+
+                {availableComplaints.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-slate-200 p-6 text-center">
+                    <ImageIcon className="h-8 w-8 text-slate-300 mx-auto" />
+                    <p className="mt-2 text-xs font-semibold text-ink-muted">
+                      Belum ada aduan selesai dengan foto bukti yang tersedia.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1">
+                    {availableComplaints.map((c) => {
+                      const photos = getPhotoUrls(c.photo_url);
+                      const thumb = photos[0];
+                      const isSelected = selectedShowcaseIds.includes(c.id);
+
+                      return (
+                        <div
+                          key={c.id}
+                          onClick={() => toggleSelectComplaint(c.id)}
+                          className={`relative cursor-pointer rounded-xl border p-2 transition-all ${
+                            isSelected
+                              ? "border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm"
+                              : "border-slate-200 bg-slate-50/50 hover:border-slate-300 hover:bg-slate-100/60"
+                          }`}
+                        >
+                          <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-slate-200">
+                            {thumb ? (
+                              <img
+                                src={thumb}
+                                alt={c.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-slate-400">
+                                <ImageIcon className="h-6 w-6" />
+                              </div>
+                            )}
+
+                            {isSelected && (
+                              <div className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-600 text-white shadow">
+                                <Check className="h-3.5 w-3.5 stroke-[3]" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="mt-2">
+                            <span className="block text-[10px] font-bold text-brand-700 truncate">
+                              {categoryLabel(c.category, c.category_note)}
+                            </span>
+                            <p className="text-xs font-semibold text-ink line-clamp-1">
+                              {c.title}
+                            </p>
+                            <span className="text-[10px] text-ink-muted block mt-0.5">
+                              {c.location || "Bojonegoro"} · {formatDateID(c.completed_at || c.created_at)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end pt-1">

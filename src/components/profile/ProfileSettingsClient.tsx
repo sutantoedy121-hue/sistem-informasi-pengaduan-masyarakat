@@ -22,6 +22,7 @@ import {
   changePasswordAction,
   type AuthState,
 } from "@/app/(auth)/actions";
+import ThemeToggleSection from "@/components/profile/ThemeToggleSection";
 
 const ROLE_LABEL: Record<UserRole, string> = {
   masyarakat: "Masyarakat",
@@ -368,12 +369,17 @@ export default function ProfileSettingsClient({
           )}
 
           {isOAuth && (
-            <div className="mt-6 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-ink-muted">
+            <div className="mt-6 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-ink-muted dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
               <Mail className="h-4 w-4 shrink-0 text-brand-600" />
               Kamu masuk memakai <span className="font-semibold">Google</span> —
               kata sandi dikelola akun Google-mu.
             </div>
           )}
+
+          {/* Kartu: Pengaturan Tema Mode Gelap & Terang */}
+          <div className="mt-6">
+            <ThemeToggleSection />
+          </div>
         </div>
       </div>
     </main>

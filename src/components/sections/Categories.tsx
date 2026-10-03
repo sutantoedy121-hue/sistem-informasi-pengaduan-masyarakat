@@ -14,21 +14,21 @@ export default async function Categories() {
   return (
     <section id="kategori" className="bg-white">
       <div className="container-page py-14 md:py-20">
-        <Reveal className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:gap-0 sm:text-left">
-          <div className="max-w-2xl sm:flex-1">
-            <span className="section-eyebrow">Kategori Aduan</span>
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-ink sm:text-4xl md:mt-4">
-              Pilih kategori sesuai keperluan
-            </h2>
-            <p className="mt-3 text-base text-ink-muted">
-              Setiap aduan dikategorikan untuk mempercepat penanganan oleh unit
-              kerja yang tepat.
-            </p>
+        <Reveal className="mx-auto flex max-w-3xl flex-col items-center text-center">
+          <span className="section-eyebrow">Kategori Aduan</span>
+          <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-ink sm:text-4xl md:mt-4">
+            Pilih kategori sesuai keperluan
+          </h2>
+          <p className="mt-3 max-w-xl text-base text-ink-muted">
+            Setiap aduan dikategorikan untuk mempercepat penanganan oleh unit
+            kerja yang tepat.
+          </p>
+          <div className="mt-6">
+            <Link href={base} className="btn-secondary">
+              {user ? "Buat Aduan" : "Daftar & Buat Aduan"}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <Link href={base} className="btn-secondary w-full shrink-0 sm:w-auto">
-            {user ? "Buat Aduan" : "Daftar & Buat Aduan"}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </Reveal>
 
         <div className="mt-10 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3 md:mt-12 lg:gap-5">

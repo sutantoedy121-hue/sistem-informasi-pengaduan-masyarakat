@@ -73,7 +73,8 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
       if (filter === "nonaktif") {
         if (u.isActive) return false;
       } else if (filter !== "semua" && u.role !== filter) return false;
-      if (!query) return true;
+      // Output hasil pencarian hanya aktif jika mengetik minimal 3 huruf
+      if (query.length < 3) return true;
       return (
         (u.email ?? "").toLowerCase().includes(query) ||
         (u.fullName ?? "").toLowerCase().includes(query)
@@ -202,7 +203,7 @@ export default function AdminUsers({ users }: { users: AdminUserRow[] }) {
           type="text"
           value={q}
           onChange={(e) => { setQ(e.target.value); setPage(1); }}
-          placeholder="Cari email / nama..."
+          placeholder="Cari email / nama (min. 3 huruf)..."
           className="input-field pl-10"
         />
       </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Users, Palette, ScrollText, Settings, ShieldCheck } from "lucide-react";
 import { getSession, getAllComplaints, getAdminUserList } from "@/lib/queries";
 import { computeStats } from "@/lib/pimpinan/stats";
+import AdminRealtimeCharts from "@/components/dashboard/AdminRealtimeCharts";
 
 const quickLinks = [
   {
@@ -75,12 +76,12 @@ export default async function AdminHomePage() {
       </div>
 
       <div className="container-page py-8">
-        {/* Stat tiles — mobile: scroll horizontal agar tiap tile lega; lg: 4 kolom */}
-        <div className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:pb-0">
+        {/* Stat tiles — Grid responsif tanpa scrollbar yang menabrak */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
           {tiles.map((t) => (
             <div
               key={t.label}
-              className="card w-[46vw] min-w-[160px] max-w-[210px] shrink-0 snap-start p-4 sm:p-5 lg:w-auto lg:min-w-0 lg:max-w-none"
+              className="card p-4 sm:p-5"
             >
               <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${t.cls}`}>
                 <Users className="h-5 w-5" />
@@ -114,13 +115,16 @@ export default async function AdminHomePage() {
           ))}
         </div>
 
-        {/* Statistik aduan singkat */}
-        <div className="mt-6 card p-5">
-          <h2 className="text-sm font-bold text-ink">Ringkasan Aduan</h2>
-          <p className="mt-0.5 text-xs text-ink-muted">
-            {complaints.length} aduan · {stats.selesai} selesai ·{" "}
-            {stats.tingkatPenyelesaian}% tingkat penyelesaian
-          </p>
+        {/* Diagram Realtime Panel Admin */}
+        <div className="mt-6">
+          <AdminRealtimeCharts
+            initialUsers={users.map((u) => ({ role: u.role, isActive: u.isActive }))}
+            initialComplaints={complaints.map((c) => ({
+              status: c.status,
+              category: c.category,
+              created_at: c.created_at,
+            }))}
+          />
         </div>
       </div>
     </main>

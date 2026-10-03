@@ -2,27 +2,39 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
-import { Search, User } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Search, User, AlertTriangle } from "lucide-react";
 import { cn, categoryLabel, formatRelativeTimeID } from "@/lib/utils";
 import type { ComplaintStaffListItem } from "@/lib/db-types";
 import StatusBadge from "@/components/ui/StatusBadge";
+import Pagination from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 10;
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 type FilterValue =
   | "semua"
+  | "overdue"
   | "diajukan"
   | "diterima"
   | "diproses"
   | "selesai"
   | "ditolak";
 
-const filters: { value: FilterValue; label: string; active: (s: string) => boolean }[] = [
+const filters: { value: FilterValue; label: string; active: (c: ComplaintStaffListItem) => boolean }[] = [
   { value: "semua", label: "Semua", active: () => true },
-  { value: "diajukan", label: "Menunggu Diterima", active: (s) => s === "diajukan" },
-  { value: "diterima", label: "Diterima", active: (s) => s === "diterima" },
-  { value: "diproses", label: "Diproses", active: (s) => s === "diproses" },
-  { value: "selesai", label: "Selesai", active: (s) => s === "selesai" },
-  { value: "ditolak", label: "Ditolak", active: (s) => s === "ditolak" },
+  {
+    value: "overdue",
+    label: "Perlu Atensi (>7 Hari)",
+    active: (c) =>
+      c.status === "diajukan" &&
+      Date.now() - new Date(c.created_at).getTime() >= SEVEN_DAYS_MS,
+  },
+  { value: "diajukan", label: "Menunggu Diterima", active: (c) => c.status === "diajukan" },
+  { value: "diterima", label: "Diterima", active: (c) => c.status === "diterima" },
+  { value: "diproses", label: "Diproses", active: (c) => c.status === "diproses" },
+  { value: "selesai", label: "Selesai", active: (c) => c.status === "selesai" },
+  { value: "ditolak", label: "Ditolak", active: (c) => c.status === "ditolak" },
 ];
 
 export default function StaffComplaintsList({
@@ -33,14 +45,19 @@ export default function StaffComplaintsList({
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialFilter =
-    (searchParams.get("filter") as FilterValue | null) || "semua";
+    (searchParams?.get("filter") as FilterValue | null) || "semua";
   const [filter, setFilter] = useState<FilterValue>(initialFilter);
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter, q]);
 
   const setFilterValue = useCallback(
     (value: FilterValue) => {
       setFilter(value);
-      const next = new URLSearchParams(searchParams);
+      const next = new URLSearchParams(searchParams ? searchParams.toString() : "");
       if (value === "semua") next.delete("filter");
       else next.set("filter", value);
       router.replace(`/petugas/aduan?${next.toString()}`, { scroll: false });
@@ -48,12 +65,13 @@ export default function StaffComplaintsList({
     [router, searchParams]
   );
 
-  const visible = useMemo(() => {
+  const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     return complaints.filter((c) => {
       const f = filters.find((x) => x.value === filter)!;
-      if (!f.active(c.status)) return false;
-      if (!query) return true;
+      if (!f.active(c)) return false;
+      // Output hasil pencarian hanya aktif jika mengetik minimal 3 huruf
+      if (query.length < 3) return true;
       return (
         c.title.toLowerCase().includes(query) ||
         c.ticket.toLowerCase().includes(query) ||
@@ -63,10 +81,16 @@ export default function StaffComplaintsList({
     });
   }, [complaints, filter, q]);
 
+  const visible = useMemo(() => {
+    return filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  }, [filtered, page]);
+
+  const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
+
   const counts = useMemo(
     () =>
       filters.reduce<Record<string, number>>((acc, f) => {
-        acc[f.value] = complaints.filter((c) => f.active(c.status)).length;
+        acc[f.value] = complaints.filter((c) => f.active(c)).length;
         return acc;
       }, {}),
     [complaints]
@@ -91,7 +115,7 @@ export default function StaffComplaintsList({
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari judul / tiket / lokasi / pelapor..."
+          placeholder="Cari judul / tiket / lokasi / pelapor (min. 3 huruf)..."
           className="input-field pl-10"
         />
       </div>
@@ -167,10 +191,21 @@ export default function StaffComplaintsList({
                   <span className="shrink-0">
                     <StatusBadge status={c.status} />
                   </span>
+                  {c.status === "diajukan" &&
+                    Date.now() - new Date(c.created_at).getTime() >=
+                      SEVEN_DAYS_MS && (
+                      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-[10px] font-bold text-red-600 ring-1 ring-red-200">
+                        <AlertTriangle className="h-3 w-3" />
+                        &gt;7 hari
+                      </span>
+                    )}
                 </Link>
               </li>
             ))}
           </ul>
+        )}
+        {pageCount > 1 && (
+          <Pagination page={page} pageCount={pageCount} onChange={setPage} />
         )}
       </div>
     </div>

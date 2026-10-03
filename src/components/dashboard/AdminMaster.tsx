@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition, Children } from "react";
+import { useEffect, useMemo, useState, useTransition, Children } from "react";
 import {
   Plus,
   Pencil,
@@ -11,37 +11,47 @@ import {
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Category, Executor } from "@/lib/db-types";
+import type { Category, Executor, Region } from "@/lib/db-types";
+import Pagination from "@/components/ui/Pagination";
 import {
   saveCategoryAction,
   toggleCategoryAction,
   saveExecutorAction,
   toggleExecutorAction,
+  saveRegionAction,
+  toggleRegionAction,
   type ActionResult,
 } from "@/app/admin/actions";
+
+const PAGE_SIZE = 10;
 
 interface Props {
   categories: Category[];
   executors: Executor[];
+  regions?: Region[];
 }
 
-type Entity = "category" | "executor";
+type Entity = "category" | "executor" | "region";
 
 type ModalState =
   | { entity: "category"; item?: Category }
   | { entity: "executor"; item?: Executor }
+  | { entity: "region"; item?: Region }
   | null;
 
 /**
- * Panel admin: data master (FR-18) — kategori & pelaksana.
+ * Panel admin: data master (FR-18) — kategori, pelaksana, & wilayah.
  * Tiap entitas di-list dengan tombol tambah/edit dan toggle aktif.
  */
-export default function AdminMaster({ categories, executors }: Props) {
+export default function AdminMaster({ categories, executors, regions = [] }: Props) {
   const router = useRouter();
   const [modal, setModal] = useState<ModalState>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [pending, startTransition] = useTransition();
+  const [pageCat, setPageCat] = useState(1);
+  const [pageExec, setPageExec] = useState(1);
+  const [pageReg, setPageReg] = useState(1);
 
   const activeCategories = useMemo(
     () => categories.filter((c) => c.is_active),
@@ -81,6 +91,13 @@ export default function AdminMaster({ categories, executors }: Props) {
           categoryId: String(formData.get("categoryId") || "") || null,
           isActive: true,
         });
+      } else if (modal.entity === "region") {
+        result = await saveRegionAction({
+          id: modal.item?.id,
+          kecamatan: String(formData.get("kecamatan") || ""),
+          desa: String(formData.get("desa") || ""),
+          isActive: true,
+        });
       }
 
       if (result && "error" in result) {
@@ -105,12 +122,69 @@ export default function AdminMaster({ categories, executors }: Props) {
           executorId: id,
           isActive: !isActive,
         });
+      else if (entity === "region")
+        result = await toggleRegionAction({
+          regionId: id,
+          isActive: !isActive,
+        });
       if (result && "error" in result) setError(result.error || "Gagal.");
       router.refresh();
     });
   }
 
   const query = q.trim().toLowerCase();
+
+  const filteredCategories = useMemo(
+    () =>
+      categories.filter((c) => {
+        if (query.length < 3) return true;
+        return (
+          c.name.toLowerCase().includes(query) ||
+          c.slug.toLowerCase().includes(query)
+        );
+      }),
+    [categories, query]
+  );
+  const filteredExecutors = useMemo(
+    () =>
+      executors.filter((e) => {
+        if (query.length < 3) return true;
+        return (
+          e.name.toLowerCase().includes(query) ||
+          (e.category_id &&
+            categories
+              .find((c) => c.id === e.category_id)
+              ?.name.toLowerCase()
+              .includes(query))
+        );
+      }),
+    [executors, categories, query]
+  );
+  const filteredRegions = useMemo(
+    () =>
+      regions.filter((r) => {
+        if (query.length < 3) return true;
+        return (
+          (r.kecamatan ?? "").toLowerCase().includes(query) ||
+          (r.desa ?? "").toLowerCase().includes(query)
+        );
+      }),
+    [regions, query]
+  );
+
+  useEffect(() => {
+    setPageCat(1);
+    setPageExec(1);
+    setPageReg(1);
+  }, [query]);
+
+  const catPage = Math.min(pageCat, Math.max(1, Math.ceil(filteredCategories.length / PAGE_SIZE)));
+  const execPage = Math.min(pageExec, Math.max(1, Math.ceil(filteredExecutors.length / PAGE_SIZE)));
+  const regPage = Math.min(pageReg, Math.max(1, Math.ceil(filteredRegions.length / PAGE_SIZE)));
+
+  const catRows = filteredCategories.slice((catPage - 1) * PAGE_SIZE, catPage * PAGE_SIZE);
+  const execRows = filteredExecutors.slice((execPage - 1) * PAGE_SIZE, execPage * PAGE_SIZE);
+  const regRows = filteredRegions.slice((regPage - 1) * PAGE_SIZE, regPage * PAGE_SIZE);
 
   return (
     <div className="container-page py-8">
@@ -137,7 +211,7 @@ export default function AdminMaster({ categories, executors }: Props) {
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Cari pada semua master..."
+          placeholder="Cari pada semua master (min. 3 huruf)..."
           className="input-field pl-10"
         />
       </div>
@@ -149,26 +223,26 @@ export default function AdminMaster({ categories, executors }: Props) {
           desc={`${activeCategories.length} aktif dari ${categories.length}`}
           onAdd={() => open({ entity: "category" })}
         >
-          {categories
-            .filter(
-              (c) =>
-                !query ||
-                c.name.toLowerCase().includes(query) ||
-                c.slug.toLowerCase().includes(query)
-            )
-            .map((c) => (
-              <MasterRow
-                key={c.id}
-                title={c.name}
-                sub={c.slug}
-                isActive={c.is_active}
-                protected={c.slug === "lainnya"}
-                onEdit={() => open({ entity: "category", item: c })}
-                onToggle={() =>
-                  toggle("category", c.id, c.is_active)
-                }
-              />
-            ))}
+          {catRows.map((c) => (
+            <MasterRow
+              key={c.id}
+              title={c.name}
+              sub={c.slug}
+              isActive={c.is_active}
+              protected={c.slug === "lainnya"}
+              onEdit={() => open({ entity: "category", item: c })}
+              onToggle={() =>
+                toggle("category", c.id, c.is_active)
+              }
+            />
+          ))}
+          {filteredCategories.length > PAGE_SIZE && (
+            <Pagination
+              page={catPage}
+              pageCount={Math.ceil(filteredCategories.length / PAGE_SIZE)}
+              onChange={setPageCat}
+            />
+          )}
         </MasterCard>
 
         {/* Pelaksana */}
@@ -177,32 +251,53 @@ export default function AdminMaster({ categories, executors }: Props) {
           desc={`${executors.filter((e) => e.is_active).length} aktif dari ${executors.length}`}
           onAdd={() => open({ entity: "executor" })}
         >
-          {executors
-            .filter(
-              (e) =>
-                !query ||
-                e.name.toLowerCase().includes(query) ||
-                (e.category_id &&
-                  categories
-                    .find((c) => c.id === e.category_id)
-                    ?.name.toLowerCase()
-                    .includes(query))
-            )
-            .map((e) => {
-              const cat = categories.find((c) => c.id === e.category_id);
-              return (
-                <MasterRow
-                  key={e.id}
-                  title={e.name}
-                  sub={cat?.name ?? "Tanpa kategori"}
-                  isActive={e.is_active}
-                  onEdit={() => open({ entity: "executor", item: e })}
-                  onToggle={() =>
-                    toggle("executor", e.id, e.is_active)
-                  }
-                />
-              );
-            })}
+          {execRows.map((e) => {
+            const cat = categories.find((c) => c.id === e.category_id);
+            return (
+              <MasterRow
+                key={e.id}
+                title={e.name}
+                sub={cat?.name ?? "Tanpa kategori"}
+                isActive={e.is_active}
+                onEdit={() => open({ entity: "executor", item: e })}
+                onToggle={() =>
+                  toggle("executor", e.id, e.is_active)
+                }
+              />
+            );
+          })}
+          {filteredExecutors.length > PAGE_SIZE && (
+            <Pagination
+              page={execPage}
+              pageCount={Math.ceil(filteredExecutors.length / PAGE_SIZE)}
+              onChange={setPageExec}
+            />
+          )}
+        </MasterCard>
+
+        {/* Wilayah */}
+        <MasterCard
+          title="Data Wilayah"
+          desc={`${regions.filter((r) => r.is_active).length} aktif dari ${regions.length}`}
+          onAdd={() => open({ entity: "region" })}
+        >
+          {regRows.map((r) => (
+            <MasterRow
+              key={r.id}
+              title={`Kec. ${r.kecamatan || "-"}`}
+              sub={`Desa/Kel. ${r.desa || "-"}`}
+              isActive={r.is_active}
+              onEdit={() => open({ entity: "region", item: r })}
+              onToggle={() => toggle("region", r.id, r.is_active)}
+            />
+          ))}
+          {filteredRegions.length > PAGE_SIZE && (
+            <Pagination
+              page={regPage}
+              pageCount={Math.ceil(filteredRegions.length / PAGE_SIZE)}
+              onChange={setPageReg}
+            />
+          )}
         </MasterCard>
       </div>
 
@@ -372,7 +467,40 @@ export default function AdminMaster({ categories, executors }: Props) {
                   </div>
                 </>
               )}
-
+              {modal.entity === "region" && (
+                <>
+                  <div>
+                    <label htmlFor="kecamatan" className="block text-sm font-medium text-ink">
+                      Kecamatan <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="kecamatan"
+                      name="kecamatan"
+                      type="text"
+                      required
+                      maxLength={80}
+                      defaultValue={modal.item?.kecamatan ?? ""}
+                      placeholder="mis. Bojonegoro Kota"
+                      className="input-field mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="desa" className="block text-sm font-medium text-ink">
+                      Desa / Kelurahan <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="desa"
+                      name="desa"
+                      type="text"
+                      required
+                      maxLength={80}
+                      defaultValue={modal.item?.desa ?? ""}
+                      placeholder="mis. Kauman"
+                      className="input-field mt-1.5"
+                    />
+                  </div>
+                </>
+              )}
               <div className="flex justify-end gap-2 pt-1">
                 <button
                   type="button"
